@@ -23,7 +23,7 @@
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
 		p:sqlSessionFactoryBeanName="sqlSessionFactory"
-		p:basePackage="com.comdosoft.financial.manage.mapper.zhangfu" />
+		p:basePackage="com.comdosoft.financial.timing.mapper.zhangfu" />
 
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
@@ -49,7 +49,7 @@
 
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
 		p:sqlSessionFactoryBeanName="sqlSessionFactory-trades"
-		p:basePackage="com.comdosoft.financial.manage.mapper.trades" />
+		p:basePackage="com.comdosoft.financial.timing.mapper.trades" />
 
 	<bean id="transactionManager-trades"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"

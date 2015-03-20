@@ -20,9 +20,8 @@
 	<mvc:default-servlet-handler />
 	
 	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-		<property name="defaultErrorView" value="error"></property>
-		<property name="exceptionAttribute" value="exception"></property>
-		<property name="warnLogCategory" value="ExceptionResolver"></property>
+		<property name="defaultErrorView" value="error" />
+		<property name="warnLogCategory" value="ExceptionResolver" />
 	</bean>
 	
 	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
