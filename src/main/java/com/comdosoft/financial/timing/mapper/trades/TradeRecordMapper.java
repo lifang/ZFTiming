@@ -1,13 +1,11 @@
 package com.comdosoft.financial.timing.mapper.trades;
 
-import com.comdosoft.financial.timing.domain.trades.TradeRecord;
-import com.comdosoft.financial.timing.utils.page.PageRequest;
+import java.util.List;
 
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import com.comdosoft.financial.timing.domain.trades.TradeRecord;
+import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public interface TradeRecordMapper {
 
@@ -42,18 +40,7 @@ public interface TradeRecordMapper {
 	int updateByPrimaryKey(TradeRecord record);
 
 	List<TradeRecord> selectPage(@Param("request") PageRequest request,
-                                 @Param("start") Date start,
-                                 @Param("end") Date end,
-                                 @Param("type") Integer type,
+								 @Param("attach") Integer attach,
                                  @Param("status") Integer status);
 
-    long countPage(@Param("start") Date start,
-                   @Param("end") Date end,
-                   @Param("type") Integer type,
-                   @Param("status") Integer status);
-
-    Map<String,Long> selectPageProfit(@Param("start") Date start,
-                                      @Param("end") Date end,
-                                      @Param("type") Integer type,
-                                      @Param("status") Integer status);
 }

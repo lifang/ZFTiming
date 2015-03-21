@@ -1,7 +1,6 @@
 package com.comdosoft.financial.timing.domain.zhangfu;
 
 import java.util.Date;
-import java.util.List;
 
 public class PayChannel {
 
@@ -357,68 +356,4 @@ public class PayChannel {
     public static final byte STATUS_UN_CHECKED = 4;            // 审核不通过
     public static final byte STATUS_CHECKED = 5;                // 正常
     public static final byte STATUS_STOP = 6;                // 已停用
-
-    private Factory factory;
-    private List<City> areas;
-    private List<PayChannelStandardRate> standardRates;
-    private List<PayChannelBillingCycle> billingCycles;
-    private List<OtherRequirement> cancelRequirements;
-    private List<OtherRequirement> updateRequirements;
-    private List<SupportTradeType> supportTradeTypes;
-
-    public Factory getFactory() {
-        return factory;
-    }
-
-    public void setFactory(Factory factory) {
-        this.factory = factory;
-    }
-
-    public List<City> getAreas() {
-        return areas;
-    }
-
-    public void setAreas(List<City> areas) {
-        this.areas = areas;
-    }
-
-    public List<PayChannelStandardRate> getStandardRates() {
-        return standardRates;
-    }
-
-    public void setStandardRates(List<PayChannelStandardRate> standardRates) {
-        this.standardRates = standardRates;
-    }
-
-    public List<PayChannelBillingCycle> getBillingCycles() {
-        return billingCycles;
-    }
-
-    public void setBillingCycles(List<PayChannelBillingCycle> billingCycles) {
-        this.billingCycles = billingCycles;
-    }
-
-    public List<OtherRequirement> getCancelRequirements() {
-        return cancelRequirements;
-    }
-
-    public void setCancelRequirements(List<OtherRequirement> cancelRequirements) {
-        this.cancelRequirements = cancelRequirements;
-    }
-
-    public List<OtherRequirement> getUpdateRequirements() {
-        return updateRequirements;
-    }
-
-    public void setUpdateRequirements(List<OtherRequirement> updateRequirements) {
-        this.updateRequirements = updateRequirements;
-    }
-
-    public List<SupportTradeType> getSupportTradeTypes() {
-        return supportTradeTypes;
-    }
-
-    public void setSupportTradeTypes(List<SupportTradeType> supportTradeTypes) {
-        this.supportTradeTypes = supportTradeTypes;
-    }
 }

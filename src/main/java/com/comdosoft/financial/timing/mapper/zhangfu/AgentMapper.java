@@ -2,10 +2,7 @@ package com.comdosoft.financial.timing.mapper.zhangfu;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Param;
-
 import com.comdosoft.financial.timing.domain.zhangfu.Agent;
-import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public interface AgentMapper {
 
@@ -34,12 +31,6 @@ public interface AgentMapper {
 	 * @mbggenerated
 	 */
 	int updateByPrimaryKey(Agent record);
-	List<Agent> findPageAgentByKeys(@Param("pageRequest") PageRequest pageRequest,
-                                   @Param("status") Byte status, @Param("keys") String keys);
-    long countByKeys(@Param("status") Byte status, @Param("keys") String keys);
 
-    Agent findAgentInfo(Integer id);
-
-    String findMaxOneLevelAgentCode();
-
+	Agent selectByCode(String code);
 }

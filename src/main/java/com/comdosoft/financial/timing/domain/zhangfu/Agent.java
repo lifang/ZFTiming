@@ -1,7 +1,6 @@
 package com.comdosoft.financial.timing.domain.zhangfu;
 
 import java.util.Date;
-import java.util.List;
 
 public class Agent {
 
@@ -548,48 +547,4 @@ public class Agent {
     public static final byte FORMATTYPE_OWN = 1; //自建
     public static final byte FORMATTYPE_OP = 2; //运营创建
 
-	private Long terminalCount;
-    private Long terminalOpenCount;
-    private Customer customer;
-    private List<AgentProfitSetting> profitSettings;
-    private List<PayChannel> payChannels;
-    public Long getTerminalCount() {
-        return terminalCount;
-    }
-
-    public void setTerminalCount(Long terminalCount) {
-        this.terminalCount = terminalCount;
-    }
-
-    public Long getTerminalOpenCount() {
-        return terminalOpenCount;
-    }
-
-    public void setTerminalOpenCount(Long terminalOpenCount) {
-        this.terminalOpenCount = terminalOpenCount;
-    }
-
-    public Customer getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
-    }
-
-    public List<AgentProfitSetting> getProfitSettings() {
-        return profitSettings;
-    }
-
-    public void setProfitSettings(List<AgentProfitSetting> profitSettings) {
-        this.profitSettings = profitSettings;
-    }
-
-    public List<PayChannel> getPayChannels() {
-        return payChannels;
-    }
-
-    public void setPayChannels(List<PayChannel> payChannels) {
-        this.payChannels = payChannels;
-    }
 }
