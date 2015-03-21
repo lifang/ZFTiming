@@ -80,7 +80,7 @@ public class CalculateProfit {
 		Thread t = new Thread(runnable);
 		t.setDaemon(true);
 		LOG.info("start calculate profit thread...");
-//		t.start();
+		t.start();
 		LOG.info("calculate profit thread started.");
 	}
 	
