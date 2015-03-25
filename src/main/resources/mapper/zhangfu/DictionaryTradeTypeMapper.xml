@@ -65,8 +65,17 @@
 
     <select id="selectBaseTradeType" resultMap="BaseResultMap">
         <bind name="TYPE_TRADE" value="@com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType@TYPE_TRADE" />
-        select *
+        select id, trade_type, trade_value, created_at, updated_at
         from dictionary_trade_types
         where trade_type=#{TYPE_TRADE}
+        limit 0,1
+    </select>
+    
+    <select id="selectOtherTradeType" resultMap="BaseResultMap">
+        <bind name="TYPE_TRADE" value="@com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType@TYPE_OTHER" />
+        select id, trade_type, trade_value, created_at, updated_at
+        from dictionary_trade_types
+        where trade_type=#{TYPE_TRADE}
+        limit 0,1
     </select>
 </mapper>
