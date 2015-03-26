@@ -19,12 +19,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.comdosoft.financial.timing.controller.api.ZhangFuRecord;
 import com.comdosoft.financial.timing.domain.trades.Profit;
+import com.comdosoft.financial.timing.domain.trades.TradeConsumeRecord;
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.SupportTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.mapper.trades.ProfitMapper;
+import com.comdosoft.financial.timing.mapper.trades.TradeConsumeRecordMapper;
 import com.comdosoft.financial.timing.mapper.trades.TradeRecordMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.DictionaryTradeTypeMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.SupportTradeTypeMapper;
@@ -42,6 +45,8 @@ public class TradeService {
 	@Autowired
 	private SupportTradeTypeMapper supportTradeTypeMapper;
 	@Autowired
+	private TradeConsumeRecordMapper tradeConsumeRecordMapper;
+	@Autowired
 	private ProfitMapper profitMapper;
 	@Value("${file.trade.record.path}")
 	private String tradeRecordFilePath;
@@ -52,16 +57,6 @@ public class TradeService {
 		List<DictionaryTradeType> typeList = dictionaryTradeTypeMapper.selectAll();
 		return typeList.stream().collect(
 				Collectors.toMap(DictionaryTradeType::getId, Function.identity()));
-	}
-	
-	@Cacheable("baseTradeType")
-	public DictionaryTradeType baseTradeType(){
-		return dictionaryTradeTypeMapper.selectBaseTradeType();
-	}
-	
-	@Cacheable("otherTradeType")
-	public DictionaryTradeType otherTradeType(){
-		return dictionaryTradeTypeMapper.selectOtherTradeType();
 	}
 
 	public List<TradeRecord> searchNonCalculatedRecord(){
@@ -87,6 +82,12 @@ public class TradeService {
 	
 	public void saveProfit(Profit profit) {
 		profitMapper.insert(profit);
+	}
+	
+	@Transactional("transactionManager-trades")
+	public void receiveRecord(ZhangFuRecord record) {
+		TradeRecord tradeRecord = new TradeRecord();
+		tradeRecordMapper.insert(tradeRecord);
 	}
 	
 	@Transactional("transactionManager-trades")
@@ -122,8 +123,8 @@ public class TradeService {
 		String flowNo = strs[1];
 		String time = strs[2];
 		String amount = strs[3];
-//		String cardNo = strs[4];
-		String tradeType = strs[5];
+		String cardNo = strs[4];
+//		String tradeType = strs[5];
 		String tradeStatus = strs[6];
 		String merchantNo = strs[7];
 		String merchantName = strs[8];
@@ -137,11 +138,7 @@ public class TradeService {
 		tradeRecord.setTradedAt(date);
 		Float f = Float.parseFloat(amount)*100;
 		tradeRecord.setAmount(f.intValue());
-		if("sale".equals(tradeType)){
-			tradeRecord.setTradeTypeId(baseTradeType().getId());
-		}else {
-			tradeRecord.setTradeTypeId(otherTradeType().getId());
-		}
+		tradeRecord.setTradeTypeId(DictionaryTradeType.ID_TRADE);//导入的都是交易类型，不需要判断，所以strs[5]都等于sale
 		tradeRecord.setTradedStatus(Integer.parseInt(tradeStatus));
 		tradeRecord.setMerchantNumber(merchantNo);
 		tradeRecord.setMerchantName(merchantName);
@@ -153,6 +150,11 @@ public class TradeService {
 		tradeRecord.setPayChannelId(terminal.getPayChannelId());
 		tradeRecord.setCustomerId(terminal.getCustomerId());
 		tradeRecordMapper.insert(tradeRecord);
-		
+		TradeConsumeRecord tcr = new TradeConsumeRecord();
+		tcr.setPayFromAccount(cardNo);
+		tcr.setId(tradeRecord.getId());
+		tcr.setCreatedAt(new Date());
+		tcr.setUpdatedAt(new Date());
+		tradeConsumeRecordMapper.insert(tcr);
 	}
 }

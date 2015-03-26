@@ -111,4 +111,10 @@ public class DictionaryTradeType {
 	}
 	public static final byte TYPE_TRADE = 1;	// 交易类型
     public static final byte TYPE_OTHER = 2;	// 其他类型
+    
+    public static final int ID_TRADE = 1;//1 消费 2 转账 3 还款 4 话费充值 5 生活充值
+    public static final int ID_TRANSFER = 2;
+    public static final int ID_REPAY = 3;
+    public static final int ID_PHONE_RECHARGE = 4;
+    public static final int ID_LIFE_RECHAGE = 5;
 }
