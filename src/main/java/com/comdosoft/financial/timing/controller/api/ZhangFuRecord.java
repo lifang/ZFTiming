@@ -99,7 +99,9 @@ public class ZhangFuRecord {
 		private String feePhone;//到账通知短信
 		private String faceValue;//面值，充值金额
 		private String price;//支付金额
-		private String rebateMoney;//分润返回金额		
+		private String rebateMoney;//分润返回金额
+		private String toAccount;
+		private String transferAmount;
 		
 		@XmlAttribute
 		public String getType() {
@@ -137,6 +139,18 @@ public class ZhangFuRecord {
 		}
 		public void setRebateMoney(String rebateMoney) {
 			this.rebateMoney = rebateMoney;
+		}
+		public String getToAccount() {
+			return toAccount;
+		}
+		public void setToAccount(String toAccount) {
+			this.toAccount = toAccount;
+		}
+		public String getTransferAmount() {
+			return transferAmount;
+		}
+		public void setTransferAmount(String transferAmount) {
+			this.transferAmount = transferAmount;
 		}
 	}
 	
