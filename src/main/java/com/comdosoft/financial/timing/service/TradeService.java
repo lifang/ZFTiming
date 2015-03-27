@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.comdosoft.financial.timing.controller.api.ZhangFuRecord;
+import com.comdosoft.financial.timing.domain.ZhangFuRecord;
 import com.comdosoft.financial.timing.domain.trades.Profit;
 import com.comdosoft.financial.timing.domain.trades.TradeConsumeRecord;
 import com.comdosoft.financial.timing.domain.trades.TradeRechargeRecord;

@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.comdosoft.financial.timing.domain.ZhangFuRecord;
 import com.comdosoft.financial.timing.service.TradeService;
 
 @RestController
-@RequestMapping("/api/zhanfu/orders")
+@RequestMapping("/api/zhanfu")
 public class ZhangFuRecrodsController {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZhangFuRecrodsController.class);
@@ -20,7 +21,7 @@ public class ZhangFuRecrodsController {
 	@Autowired
 	private TradeService tradeService;
 	
-	@RequestMapping(value="/import",method=RequestMethod.POST)
+	@RequestMapping(value="/orders/import",method=RequestMethod.POST)
 	public String importOrders(MultipartFile file,Integer flag){
 		if(flag==0){
 			return "缺少重要参数";
@@ -37,7 +38,7 @@ public class ZhangFuRecrodsController {
 		return "-1";
 	}
 
-	@RequestMapping(value="/submit",method=RequestMethod.POST)
+	@RequestMapping(value="/orders/submit",method=RequestMethod.POST)
 	public void submitOrder(@RequestBody ZhangFuRecord record){
 		tradeService.receiveRecord(record);
 	}

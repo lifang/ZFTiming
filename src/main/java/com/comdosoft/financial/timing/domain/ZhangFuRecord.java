@@ -1,4 +1,4 @@
-package com.comdosoft.financial.timing.controller.api;
+package com.comdosoft.financial.timing.domain;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
