@@ -17,10 +17,10 @@ public class AccountAuthAction extends RequireLoginAction {
 	private String unionBankNo;
 	private File card;
 
-	public AccountAuthAction(String phoneNum, String password, String position,
+	public AccountAuthAction(String phoneNum, String password, String position, String appVersion,
 			String bankDeposit, String accountNo, String name,
 			String unionBankNo, File card) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.bankDeposit = bankDeposit;
 		this.accountNo = accountNo;
 		this.name = name;

@@ -55,8 +55,8 @@ public class LoginRequest extends RequestBean {
 		private String settleAccount;//结算账户名
 		private String settleAccountNo;//结算账号
 		private String settleAgency;//开户行
-		private int accountStatus;//开户状态
-		private int authStatus;//认证状态
+		private String accountStatus;//开户状态
+		private String authStatus;//认证状态
 		private String factoryId;//厂商号
 		
 		public String getMerchantId() {
@@ -138,16 +138,16 @@ public class LoginRequest extends RequestBean {
 		public void setSettleAccountType(int settleAccountType) {
 			this.settleAccountType = settleAccountType;
 		}
-		public int getAccountStatus() {
+		public String getAccountStatus() {
 			return accountStatus;
 		}
-		public void setAccountStatus(int accountStatus) {
+		public void setAccountStatus(String accountStatus) {
 			this.accountStatus = accountStatus;
 		}
-		public int getAuthStatus() {
+		public String getAuthStatus() {
 			return authStatus;
 		}
-		public void setAuthStatus(int authStatus) {
+		public void setAuthStatus(String authStatus) {
 			this.authStatus = authStatus;
 		}
 		

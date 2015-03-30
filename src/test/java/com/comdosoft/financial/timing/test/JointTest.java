@@ -40,9 +40,7 @@ public class JointTest {
 		arr.setSettleAgency("中国工商银行苏州园区支行");
 		arr.setAccountPwd("111111");
 		arr.setMobileNum("13862223435");
-		hxActionManager.acts(arr, (result) ->{
-			System.out.println(result);
-		});
+		hxActionManager.acts(arr);
 		
 //		String terminalId = "30709B68800A";
 //		String account = "13909585846";

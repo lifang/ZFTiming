@@ -4,7 +4,6 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.comdosoft.financial.timing.joint.JointHandler;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
@@ -19,7 +18,7 @@ public class ActionManager implements JointManager {
 	private String rsaKey;
 	
 	@Override
-	public void acts(JointRequest request, JointHandler handler) {
+	public JointResponse acts(JointRequest request) {
 		if(!(request instanceof RequestBean)){
 			throw new IllegalArgumentException();
 		}
@@ -27,11 +26,11 @@ public class ActionManager implements JointManager {
 		LOG.debug("request bean:...{}",bean.toString());
 		try {
 			String sendData = bean.generateBody(this);
-			JointResponse response = HttpUtils.post(url, sendData, context, bean);
-			handler.handle(response);
+			return HttpUtils.post(url, sendData, context, bean);
 		} catch (Exception e) {
 			LOG.error("",e);
 		}
+		return null;
 	}
 	
 	public JointRequest createLogin(String phoneNum, String password, String terminalId) {
@@ -52,6 +51,19 @@ public class ActionManager implements JointManager {
 
 	public String getRsaKey() {
 		return rsaKey;
+	}
+
+	@Override
+	public String syncStatus(String account, String passwd, String serialNum) {
+		LoginRequest request = new LoginRequest();
+		request.setAccountName(account);
+		request.setAccountPwd(passwd);
+		request.setTerminalId(serialNum);
+		LoginRequest.LoginResponse response = (LoginRequest.LoginResponse)acts(request);
+		if(response==null) {
+			return null;
+		}
+		return response.getAccountStatus();
 	}
 
 }

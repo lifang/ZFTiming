@@ -10,9 +10,9 @@ public class DateTrans extends TransactionAction {
 
 	private Date date;
 	
-	public DateTrans(String phoneNum, String password, String position,
+	public DateTrans(String phoneNum, String password, String position, String appVersion,
 			Date date) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.date = date;
 	}
 

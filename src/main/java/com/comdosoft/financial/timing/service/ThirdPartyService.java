@@ -1,7 +1,8 @@
 package com.comdosoft.financial.timing.service;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.comdosoft.financial.timing.joint.JointManager;
@@ -15,11 +16,12 @@ import com.comdosoft.financial.timing.joint.JointManager;
 public class ThirdPartyService {
 
 	@Autowired
-	@Qualifier("hanxin")
-	private JointManager hxManager;
-	@Autowired
-	@Qualifier("zhonghui")
-	private JointManager zhManager;
+	private Map<Integer,JointManager> managers;
 
+	public String syncStatus(Integer payChannelId,String account,String passwd,String serialNum){
+		JointManager manager = managers.get(payChannelId);
+		String status = manager.syncStatus(account, passwd, serialNum);
+		return status;
+	}
 	
 }

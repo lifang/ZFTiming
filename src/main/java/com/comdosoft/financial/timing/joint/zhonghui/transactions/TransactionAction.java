@@ -8,8 +8,8 @@ import com.comdosoft.financial.timing.joint.zhonghui.Result;
 
 public abstract class TransactionAction extends RequireLoginAction {
 
-	public TransactionAction(String phoneNum, String password, String position) {
-		super(phoneNum, password, position);
+	public TransactionAction(String phoneNum, String password, String position, String appVersion) {
+		super(phoneNum, password, position, appVersion);
 	}
 
 	@Override

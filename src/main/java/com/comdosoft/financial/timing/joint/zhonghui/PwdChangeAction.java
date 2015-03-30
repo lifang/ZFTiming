@@ -7,9 +7,9 @@ public class PwdChangeAction extends RequireLoginAction {
 	private String newPassword;// 登录名或者手机号码
 	private String password;
 
-	public PwdChangeAction(String phoneNum, String password, String position,
+	public PwdChangeAction(String phoneNum, String password, String position, String appVersion,
 			String newPassword) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.newPassword = newPassword;
 		this.password = password;
 	}

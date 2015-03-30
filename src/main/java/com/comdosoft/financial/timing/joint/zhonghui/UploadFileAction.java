@@ -16,9 +16,9 @@ public class UploadFileAction extends RequireLoginAction {
 	private Type type;
 	private File photo;
 
-	public UploadFileAction(String phoneNum, String password, String position,
+	public UploadFileAction(String phoneNum, String password, String position, String appVersion,
 			Type type, File photo) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.type = type;
 		this.photo = photo;
 	}

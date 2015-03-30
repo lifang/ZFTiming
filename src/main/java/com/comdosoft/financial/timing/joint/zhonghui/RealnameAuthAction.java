@@ -17,9 +17,9 @@ public class RealnameAuthAction extends RequireLoginAction {
 	private File personal;
 	private File personalBack;
 
-	public RealnameAuthAction(String phoneNum, String password, String position,
+	public RealnameAuthAction(String phoneNum, String password, String position, String appVersion,
 			String name, String idNumber, File personal, File personalBack) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.name = name;
 		this.idNumber = idNumber;
 		this.personal = personal;

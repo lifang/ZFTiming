@@ -20,11 +20,14 @@ public abstract class RequireLoginAction extends Action {
 	private String phoneNum;
 	private String password;
 	private String position;
+	private String appVersion;
 
-	public RequireLoginAction(String phoneNum, String password, String position) {
+	public RequireLoginAction(String phoneNum, String password,
+			String position, String appVersion) {
 		this.phoneNum = phoneNum;
 		this.password = password;
 		this.position = position;
+		this.appVersion = appVersion;
 	}
 
 	@Override
@@ -33,7 +36,7 @@ public abstract class RequireLoginAction extends Action {
 		if(result == null) {
 			try {
 				LoginAction la = new LoginAction(phoneNum, password,position,
-						manager.getAppVersion(),manager.getProduct());
+						appVersion,manager.getProduct());
 				LoginResult lr = (LoginResult)la.process(manager);
 				loggedInfo.put(phoneNum, lr);
 			} catch (IOException e) {

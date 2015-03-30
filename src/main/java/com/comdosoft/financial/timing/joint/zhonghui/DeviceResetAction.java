@@ -7,9 +7,9 @@ public class DeviceResetAction extends RequireLoginAction {
 	private String idNumber;
 	private String ksnNo;
 
-	public DeviceResetAction(String phoneNum, String password, String position,
+	public DeviceResetAction(String phoneNum, String password, String position, String appVersion,
 			String idNumber, String ksnNo) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.idNumber = idNumber;
 		this.ksnNo = ksnNo;
 	}

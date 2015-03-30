@@ -7,9 +7,9 @@ public class DeviceReplaceAction extends RequireLoginAction {
 	private String ksnNo;
 	private String model;
 	
-	public DeviceReplaceAction(String phoneNum, String password, String position,
+	public DeviceReplaceAction(String phoneNum, String password, String position, String appVersion,
 			String ksnNo, String model) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.ksnNo = ksnNo;
 		this.model = model;
 	}

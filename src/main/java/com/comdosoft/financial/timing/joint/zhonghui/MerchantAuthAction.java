@@ -19,10 +19,10 @@ public class MerchantAuthAction extends RequireLoginAction{
 	private File businessPlace;
 	private File cashierDesk;
 
-	public MerchantAuthAction(String phoneNum, String password, String position,
+	public MerchantAuthAction(String phoneNum, String password, String position, String appVersion,
 			String companyName, String regPlace,
 			String businessLicense,File business, File businessPlace, File cashierDesk) {
-		super(phoneNum, password, position);
+		super(phoneNum, password, position, appVersion);
 		this.companyName = companyName;
 		this.regPlace = regPlace;
 		this.businessLicense = businessLicense;

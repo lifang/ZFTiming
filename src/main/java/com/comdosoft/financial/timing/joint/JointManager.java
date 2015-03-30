@@ -3,6 +3,12 @@ package com.comdosoft.financial.timing.joint;
 
 public interface JointManager {
 	
-	void acts(JointRequest request,JointHandler handler);
+	JointResponse acts(JointRequest request);
+	
+	/**
+	 * 同步状态
+	 * @return
+	 */
+	String syncStatus(String account,String passwd,String serialNum);
 	
 }

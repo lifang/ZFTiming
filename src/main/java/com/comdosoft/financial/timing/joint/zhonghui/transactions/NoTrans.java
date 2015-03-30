@@ -6,8 +6,8 @@ public class NoTrans extends TransactionAction {
 	
 	private int respNo;
 
-	public NoTrans(String phoneNum, String password, String position,int respNo) {
-		super(phoneNum, password, position);
+	public NoTrans(String phoneNum, String password, String position, String appVersion,int respNo) {
+		super(phoneNum, password, position, appVersion);
 		this.respNo = respNo;
 	}
 

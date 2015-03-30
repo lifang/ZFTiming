@@ -22,7 +22,7 @@ import com.comdosoft.financial.timing.service.ThirdPartyService;
 public class RestServiceController {
 	
 	@Autowired
-	private ThirdPartyService ThirdPartyService;
+	private ThirdPartyService thirdPartyService;
 	
 	/**
 	 * 提交申请资料
@@ -91,7 +91,7 @@ public class RestServiceController {
 		if(account==null||password==null||serialNum==null||payChannelId==null){
 			return Response.getError("参数[account,password,serialNum,payChannelId]都不可为空！");
 		}
-
-		return Response.getSuccess(null);
+		String result = thirdPartyService.syncStatus(payChannelId,account,password,serialNum);
+		return Response.getSuccess(result);
 	}
 }

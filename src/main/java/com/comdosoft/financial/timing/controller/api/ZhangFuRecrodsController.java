@@ -13,7 +13,7 @@ import com.comdosoft.financial.timing.domain.ZhangFuRecord;
 import com.comdosoft.financial.timing.service.TradeService;
 
 @RestController
-@RequestMapping("/api/zhanfu")
+@RequestMapping("/api/zhangfu")
 public class ZhangFuRecrodsController {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(ZhangFuRecrodsController.class);

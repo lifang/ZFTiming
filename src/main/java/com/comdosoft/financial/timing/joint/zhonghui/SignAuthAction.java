@@ -15,8 +15,8 @@ public class SignAuthAction extends RequireLoginAction {
 	private File signature;
 
 	public SignAuthAction(String phoneNum, String password,
-			String position, File signature) {
-		super(phoneNum, password, position);
+			String position, String appVersion, File signature) {
+		super(phoneNum, password, position, appVersion);
 		this.signature = signature;
 	}
 
