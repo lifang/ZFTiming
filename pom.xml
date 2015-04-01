@@ -75,6 +75,13 @@
 			<artifactId>mybatis</artifactId>
 			<version>3.2.8</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib</artifactId>
+			<version>3.1</version>
+		</dependency>
+		
 
 		<!-- json -->
 		<dependency>
@@ -118,12 +125,6 @@
 			<artifactId>joda-time</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>3.1</version>
-		</dependency>
-
 		<!-- test -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -142,7 +143,7 @@
 			<dependency>
 				<groupId>io.spring.platform</groupId>
 				<artifactId>platform-bom</artifactId>
-				<version>1.1.1.RELEASE</version>
+				<version>1.1.2.RELEASE</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -150,7 +151,6 @@
 	</dependencyManagement>
 
 	<build>
-		<finalName>ZFManager</finalName>
 		<defaultGoal>package</defaultGoal>
 		<plugins>
 			<plugin>

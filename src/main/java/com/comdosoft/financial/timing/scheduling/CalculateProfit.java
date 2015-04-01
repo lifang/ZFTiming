@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.comdosoft.financial.timing.domain.trades.Profit;
@@ -52,36 +51,19 @@ public class CalculateProfit {
 		calculateTypes.add(new TradeType());
 	}
 	
-	private Runnable runnable = ()->{
-		while(true){
-			List<TradeRecord> records = tradeService.searchNonCalculatedRecord();
-			LOG.info("select {} records.",records.size());
+	@Scheduled(fixedDelay=5000)
+	public void job(){
+		List<TradeRecord> records = tradeService.searchNonCalculatedRecord();
+		LOG.info("select {} records.",records.size());
+		records.forEach((record)->{
 			try {
-				if(records.size()==0){
-					Thread.sleep(5000);
-				}
-			} catch (InterruptedException e) {
-				LOG.error("thread interrupted exception.",e);
+				calculate(record);
+			} catch (Exception e) {
+				LOG.error("id:"+record.getId()+" calculate exception.",e);
+				record.setAttachStatus(TradeRecord.ATTACH_STATUS_FAIL);
+				tradeService.updateRecord(record);
 			}
-			records.forEach((record)->{
-				try {
-					calculate(record);
-				} catch (Exception e) {
-					LOG.error("id:"+record.getId()+" calculate exception.",e);
-					record.setAttachStatus(TradeRecord.ATTACH_STATUS_FAIL);
-					tradeService.updateRecord(record);
-				}
-			});
-		}
-	};
-	
-	@PostConstruct
-	public void init(){
-		Thread t = new Thread(runnable);
-		t.setDaemon(true);
-		LOG.info("start calculate profit thread...");
-		t.start();
-		LOG.info("calculate profit thread started.");
+		});
 	}
 	
 	public void calculate(TradeRecord record){
