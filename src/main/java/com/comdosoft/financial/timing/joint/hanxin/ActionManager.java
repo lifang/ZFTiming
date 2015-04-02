@@ -4,9 +4,13 @@ import org.apache.http.client.protocol.HttpClientContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
+import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
+import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.HttpUtils;
 
 public class ActionManager implements JointManager {
@@ -54,16 +58,40 @@ public class ActionManager implements JointManager {
 	}
 
 	@Override
-	public String syncStatus(String account, String passwd, String serialNum) {
+	public String syncStatus(String account, String passwd,
+			Terminal terminal, TerminalService terminalService) {
 		LoginRequest request = new LoginRequest();
 		request.setAccountName(account);
 		request.setAccountPwd(passwd);
-		request.setTerminalId(serialNum);
+		request.setTerminalId(terminal.getSerialNum());
 		LoginRequest.LoginResponse response = (LoginRequest.LoginResponse)acts(request);
 		if(response==null) {
 			return null;
 		}
-		return response.getAccountStatus();
+		String accountStatus = response.getAccountStatus();
+		Integer intStatus = Integer.valueOf(accountStatus);
+		if(intStatus == 0){//审核中
+			//不做处理
+		}
+		
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		if(intStatus == 1) {//审核成功
+			oa.setStatus(OpeningApplie.STATUS_CHECK_SUCCESS);
+			terminalService.updateOpeningApply(oa);
+			terminal.setStatus(Terminal.STATUS_OPENED);
+			terminalService.updateTerminal(terminal);
+			terminalService.updateTerminalTradeTypeStatus(
+					TerminalTradeTypeInfo.STATUS_OPENED, terminal.getId());
+		}
+		
+		if(intStatus == 2) {//审核失败
+			oa.setStatus(OpeningApplie.STATUS_CHECK_FAIL);
+			terminalService.updateOpeningApply(oa);
+			terminal.setStatus(Terminal.STATUS_NO_OPEN);
+			terminalService.updateTerminal(terminal);
+		}
+		
+		return accountStatus;
 	}
 
 }

@@ -3,6 +3,7 @@ package com.comdosoft.financial.timing.mapper.zhangfu;
 import java.util.List;
 
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
+import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public interface OpeningApplieMapper {
 
@@ -35,4 +36,8 @@ public interface OpeningApplieMapper {
 	 * @mbggenerated
 	 */
 	int updateByPrimaryKey(OpeningApplie record);
+	
+	OpeningApplie selectOpeningApplie(Integer terminalId);
+	
+	List<OpeningApplie> selectWithStatus(byte status,PageRequest request);
 }

@@ -4,11 +4,14 @@
 package com.comdosoft.financial.timing.controller.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.comdosoft.financial.timing.domain.Response;
+import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
 
 /**
@@ -23,6 +26,8 @@ public class RestServiceController {
 	
 	@Autowired
 	private ThirdPartyService thirdPartyService;
+	@Autowired
+	private TerminalService terminalService;
 	
 	/**
 	 * 提交申请资料
@@ -91,7 +96,14 @@ public class RestServiceController {
 		if(account==null||password==null||serialNum==null||payChannelId==null){
 			return Response.getError("参数[account,password,serialNum,payChannelId]都不可为空！");
 		}
-		String result = thirdPartyService.syncStatus(payChannelId,account,password,serialNum);
-		return Response.getSuccess(result);
+		Terminal terminal = terminalService.findBySerial(serialNum);
+		if(terminal == null) {
+			return Response.getError("未查询到终端.");
+		}
+		String result = thirdPartyService.syncStatus(payChannelId,account,password,terminal);
+		if(StringUtils.hasLength(result)){
+			return Response.getSuccess(result);
+		}
+		return Response.getError("同步失败");
 	}
 }

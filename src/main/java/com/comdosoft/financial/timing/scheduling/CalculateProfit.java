@@ -111,7 +111,7 @@ public class CalculateProfit {
 	public void setRecordTerminalProfitFail(TradeRecord record) {
 		Terminal t = selectRecordTerminal(record);
 		t.setIsRateWrong(false);
-		terminalService.saveTerminal(t);
+		terminalService.updateTerminal(t);
 	}
 
 	/**

@@ -3,12 +3,17 @@
  */
 package com.comdosoft.financial.timing.scheduling;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
+import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
 
 /**
@@ -25,9 +30,20 @@ public class SyncStatus {
 	
 	@Autowired
 	private ThirdPartyService thirdPartyService;
+	@Autowired
+	private TerminalService terminalService;
 	
 	@Scheduled(fixedDelay=6000)
 	public void syncOpeningApplyStatus(){
 		LOG.debug("start sync.");
+		List<OpeningApplie> openApplies = null;
+		do{
+			openApplies = thirdPartyService.openingAppliesPage(OpeningApplie.STATUS_CHECKING);
+			for(OpeningApplie apply : openApplies) {
+				Terminal terminal = terminalService.findById(apply.getTerminalId());
+				thirdPartyService.syncStatus(terminal.getPayChannelId(),
+						terminal.getAccount(), terminal.getPassword(), terminal);
+			}
+		}while(!openApplies.isEmpty());
 	}
 }

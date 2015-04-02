@@ -30,6 +30,7 @@
     <result column="tax_registered_no" jdbcType="VARCHAR" property="taxRegisteredNo" />
     <result column="organization_code_no" jdbcType="VARCHAR" property="organizationCodeNo" />
     <result column="billing_cyde_id" jdbcType="INTEGER" property="billingCydeId" />
+    <result column="apply_status" jdbcType="VARCHAR" property="applyStatus" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
@@ -54,7 +55,7 @@
       card_id, phone, email, 
       city_id, name, pay_channel_id, 
       account_bank_num, account_bank_name, account_bank_code, 
-      tax_registered_no, organization_code_no, billing_cyde_id
+      tax_registered_no, organization_code_no, billing_cyde_id, apply_status
       )
     values (#{applyCustomerId,jdbcType=INTEGER}, #{preliminaryVerifyUserId,jdbcType=INTEGER}, 
       #{terminalId,jdbcType=INTEGER}, #{status,jdbcType=TINYINT}, #{createdAt,jdbcType=TIMESTAMP}, 
@@ -63,7 +64,8 @@
       #{cardId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{cityId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{payChannelId,jdbcType=INTEGER}, 
       #{accountBankNum,jdbcType=VARCHAR}, #{accountBankName,jdbcType=VARCHAR}, #{accountBankCode,jdbcType=VARCHAR}, 
-      #{taxRegisteredNo,jdbcType=VARCHAR}, #{organizationCodeNo,jdbcType=VARCHAR}, #{billingCydeId,jdbcType=INTEGER}
+      #{taxRegisteredNo,jdbcType=VARCHAR}, #{organizationCodeNo,jdbcType=VARCHAR}, #{billingCydeId,jdbcType=INTEGER},
+      #{applyStatus,jdbcType=VARCHAR}
       )
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie">
@@ -94,7 +96,8 @@
       account_bank_code = #{accountBankCode,jdbcType=VARCHAR},
       tax_registered_no = #{taxRegisteredNo,jdbcType=VARCHAR},
       organization_code_no = #{organizationCodeNo,jdbcType=VARCHAR},
-      billing_cyde_id = #{billingCydeId,jdbcType=INTEGER}
+      billing_cyde_id = #{billingCydeId,jdbcType=INTEGER},
+      apply_status = #{applyStatus,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -105,7 +108,7 @@
     select id, apply_customer_id, preliminary_verify_user_id, terminal_id, status, created_at, 
     updated_at, types, merchant_id, merchant_name, sex, birthday, card_id, phone, email, 
     city_id, name, pay_channel_id, account_bank_num, account_bank_name, account_bank_code, 
-    tax_registered_no, organization_code_no, billing_cyde_id
+    tax_registered_no, organization_code_no, billing_cyde_id, apply_status
     from opening_applies
     where id = #{id,jdbcType=INTEGER}
   </select>
@@ -117,7 +120,7 @@
     select id, apply_customer_id, preliminary_verify_user_id, terminal_id, status, created_at, 
     updated_at, types, merchant_id, merchant_name, sex, birthday, card_id, phone, email, 
     city_id, name, pay_channel_id, account_bank_num, account_bank_name, account_bank_code, 
-    tax_registered_no, organization_code_no, billing_cyde_id
+    tax_registered_no, organization_code_no, billing_cyde_id, apply_status
     from opening_applies
   </select>
 
@@ -126,7 +129,18 @@
     </resultMap>
     <select id="selectOpeningApplie" resultMap="OpeningApplieResultMap">
         select * from opening_applies
-        where terminal_id=#{param1} order by created_at desc  limit 1
+        where terminal_id=#{param1} order by created_at desc limit 1
+    </select>
+    
+    <select id="selectWithStatus" resultMap="BaseResultMap">
+        select id, apply_customer_id, preliminary_verify_user_id, terminal_id, status, created_at, 
+	    updated_at, types, merchant_id, merchant_name, sex, birthday, card_id, phone, email, 
+	    city_id, name, pay_channel_id, account_bank_num, account_bank_name, account_bank_code, 
+	    tax_registered_no, organization_code_no, billing_cyde_id, apply_status
+	    from opening_applies
+	    where status = #{param1}
+	    order by created_at
+	    limit #{param2.offset}, #{param2.pageSize}
     </select>
 
 </mapper>
