@@ -1,10 +1,12 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
@@ -14,6 +16,8 @@ import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
 import com.comdosoft.financial.timing.service.TerminalService;
+import com.comdosoft.financial.timing.utils.page.Page;
+import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public class ActionManager implements JointManager{
 	
@@ -103,6 +107,26 @@ public class ActionManager implements JointManager{
 		terminalService.updateTerminal(terminal);
 		terminalService.updateOpeningApply(oa);
 		return status;
+	}
+
+	@Override
+	public Page<JointManager.Bank> bankList(String keyword, PageRequest request, String serialNum) {
+		if(!StringUtils.hasLength(keyword)){
+			keyword = "银行";
+		}
+		//从第三方查询银行
+		FindBankAction fba = new FindBankAction(keyword, request.getPageSize(), request.getPage());
+		FindBankAction.BankResult result = (FindBankAction.BankResult)acts(fba);
+		//组装成接口数据
+		List<FindBankAction.Bank> banks = result.getBanks();
+		List<JointManager.Bank> bankResult = new ArrayList<JointManager.Bank>();
+		for(FindBankAction.Bank b : banks){
+			JointManager.Bank rb = new JointManager.Bank();
+			rb.setName(b.getBankDeposit());
+			rb.setNo(b.getUnionBankNo());;
+			bankResult.add(rb);
+		}
+		return new Page<JointManager.Bank>(request, bankResult, result.getTotal());
 	}
 
 }

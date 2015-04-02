@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.comdosoft.financial.timing.domain.Response;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
+import com.comdosoft.financial.timing.utils.page.Page;
 
 /**
  * @author gookin.wu
@@ -53,7 +55,8 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value="/banks/query",method=RequestMethod.POST)
-	public Response queryBanks(String keyword,Integer page,Integer pageSize,Integer payChannelId){
+	public Response queryBanks(String keyword,Integer page,
+			Integer pageSize,Integer payChannelId,String serialNum){
 		if(payChannelId==null){
 			return Response.getError("参数[payChannelId]不可为空！");
 		}
@@ -63,8 +66,9 @@ public class RestServiceController {
 		if(pageSize==null){
 			pageSize = 10;
 		}
-
-		return Response.getSuccess(null);
+		Page<JointManager.Bank> banks = thirdPartyService.bankList(keyword,
+				pageSize, pageSize, payChannelId, serialNum);
+		return Response.getSuccess(banks);
 	}
 
 	/**

@@ -1,8 +1,12 @@
 package com.comdosoft.financial.timing.joint.hanxin;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.http.client.protocol.HttpClientContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
@@ -12,6 +16,8 @@ import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.HttpUtils;
+import com.comdosoft.financial.timing.utils.page.Page;
+import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public class ActionManager implements JointManager {
 	
@@ -94,4 +100,36 @@ public class ActionManager implements JointManager {
 		return accountStatus;
 	}
 
+	@Override
+	public Page<JointManager.Bank> bankList(String keyword, PageRequest request, String serialNum) {
+		SettBankListRequest r = new SettBankListRequest();
+		r.setTerminalId(serialNum);
+		SettBankListRequest.SettBankListResponse response = 
+				(SettBankListRequest.SettBankListResponse)acts(r);
+		List<SettBankListRequest.Bank> rBanks = response.getBankList();
+		List<JointManager.Bank> resultAll = new ArrayList<>();
+		for(SettBankListRequest.Bank rBank : rBanks) {
+			if(StringUtils.isEmpty(keyword)
+					||rBank.getBankName().contains(keyword)){
+				resultAll.add(convert(rBank));
+			}
+		}
+		int from = request.getOffset();
+		int to = request.getOffset()+request.getPageSize();
+		if(to > resultAll.size()){
+			to = resultAll.size();
+		}
+		if(from >= to){
+			return new Page<JointManager.Bank>(request, new ArrayList<>(), resultAll.size());
+		}
+		List<JointManager.Bank> result = resultAll.subList(from, to);
+		return new Page<JointManager.Bank>(request, result, resultAll.size());
+	}
+
+	private JointManager.Bank convert(SettBankListRequest.Bank b) {
+		JointManager.Bank bank = new JointManager.Bank();
+		bank.setName(b.getBankName());
+		bank.setNo(b.getBankNo());
+		return bank;
+	}
 }
