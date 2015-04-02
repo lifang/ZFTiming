@@ -5,10 +5,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.mapper.zhangfu.OpeningApplieMapper;
+import com.comdosoft.financial.timing.mapper.zhangfu.OperateRecordMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.TerminalMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.TerminalTradeTypeInfoMapper;
 
@@ -21,6 +23,8 @@ public class TerminalService {
 	private OpeningApplieMapper openingApplieMapper;
 	@Autowired
 	private TerminalTradeTypeInfoMapper terminalTradeTypeInfoMapper;
+	@Autowired
+	private OperateRecordMapper operateRecordMapper;
 	
 	public OpeningApplie findOpeningAppylByTerminalId(Integer terminalId){
 		return openingApplieMapper.selectOpeningApplie(terminalId);
@@ -53,5 +57,37 @@ public class TerminalService {
 	
 	public List<TerminalTradeTypeInfo> findTerminalTradeTypeInfos(Integer terminalId){
 		return terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminalId);
+	}
+	
+	public Integer findNotTradeTypeStatus(Terminal terminal) {
+		List<TerminalTradeTypeInfo> infos = terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminal.getId());
+		for(TerminalTradeTypeInfo info : infos) {
+			if(info.getTradeTypeId() != DictionaryTradeType.ID_TRADE){
+				return info.getStatus();
+			}
+		}
+		return null;
+	}
+	
+	public void updateNotTradeTypeStatus(Terminal terminal,String idCard,String name){
+		List<TerminalTradeTypeInfo> infos = terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminal.getId());
+		byte terminalStatus = Terminal.STATUS_OPENED;
+		for(TerminalTradeTypeInfo info : infos){
+			if(info.getTradeTypeId() == DictionaryTradeType.ID_TRADE){
+				if(info.getStatus() == TerminalTradeTypeInfo.STATUS_NO_OPEN){
+					terminalStatus = Terminal.STATUS_PART_OPENED;//如果交易类型未开通，终端设为部分开通
+				}
+			}else{
+				info.setStatus(TerminalTradeTypeInfo.STATUS_OPENED);
+				terminalTradeTypeInfoMapper.updateByPrimaryKey(info);
+			}
+		}
+		
+		terminal.setStatus(terminalStatus);
+		terminalMapper.updateByPrimaryKey(terminal);
+		
+		//TODO 将这次的传递过来的参数拼接存入到operate_records中
+		
+		
 	}
 }

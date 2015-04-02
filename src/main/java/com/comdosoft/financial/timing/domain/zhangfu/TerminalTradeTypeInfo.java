@@ -105,7 +105,7 @@ public class TerminalTradeTypeInfo {
         this.supportTradeType = supportTradeType;
     }
 
-    public static final Integer STATUS_OPENED = 1;
-    public static final Integer STATUS_NO_OPEN = 2;
+    public static final int STATUS_OPENED = 1;
+    public static final int STATUS_NO_OPEN = 2;
 
 }
