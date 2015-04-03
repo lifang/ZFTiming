@@ -132,4 +132,23 @@ public class ActionManager implements JointManager {
 		bank.setNo(b.getBankNo());
 		return bank;
 	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#pullTrades(java.lang.Integer, java.lang.Integer)
+	 */
+	@Override
+	public void pullTrades(Integer terminalId, Integer tradeTypeId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#submitOpeningApply(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void submitOpeningApply(Terminal terminal,
+			TerminalService terminalService) {
+		// TODO Auto-generated method stub
+		
+	}
 }

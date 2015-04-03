@@ -1,46 +1,50 @@
 package com.comdosoft.financial.timing.test;
 
+import java.util.Map;
+
+import javax.annotation.Resource;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.comdosoft.financial.timing.joint.JointManager;
-import com.comdosoft.financial.timing.joint.hanxin.AccountRegistRequest;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:spring-mvc.xml")
 @ActiveProfiles("local")
 public class JointTest {
 	
-	@Autowired
-	@Qualifier("hanxin")
-	private JointManager hxActionManager;
-	
-	@Autowired
-	@Qualifier("zhonghui")
-	private JointManager zhActionManager;
+	@Resource
+	private Map<String,JointManager> managers;
 	
 	@Test
 	public void login(){
 		
-		String terminalId = "30709B402D08";
 		
-		AccountRegistRequest arr = new AccountRegistRequest();
-		arr.setTerminalId(terminalId);
-		arr.setMerchantName("gookin");
-		arr.setLegalManName("吴国清");
-		arr.setLegalManIdcard("320219198512093530");
-		arr.setSettleAccountType("2");
-		arr.setSettleAccount("吴国清");
-		arr.setSettleAccountNo("6222021102020761436");
-		arr.setSettleAgency("中国工商银行苏州园区支行");
-		arr.setAccountPwd("111111");
-		arr.setMobileNum("13862223435");
-		hxActionManager.acts(arr);
+		
+		
+//		Calendar c = Calendar.getInstance();
+//		c.set(Calendar.DAY_OF_MONTH, 1);
+//		Action action = new DateTrans("13862223435","gookin","460,0,6157,55153","", c.getTime());
+		
+		
+//		String terminalId = "30709B402D08";
+//		
+//		AccountRegistRequest arr = new AccountRegistRequest();
+//		arr.setTerminalId(terminalId);
+//		arr.setMerchantName("gookin");
+//		arr.setLegalManName("吴国清");
+//		arr.setLegalManIdcard("320219198512093530");
+//		arr.setSettleAccountType("2");
+//		arr.setSettleAccount("吴国清");
+//		arr.setSettleAccountNo("6222021102020761436");
+//		arr.setSettleAgency("中国工商银行苏州园区支行");
+//		arr.setAccountPwd("111111");
+//		arr.setMobileNum("13862223435");
+//		hxActionManager.acts(arr);
 		
 //		String terminalId = "30709B68800A";
 //		String account = "13909585846";
@@ -124,6 +128,9 @@ public class JointTest {
 //		Action action = new FindBankAction("中国工商银行苏州");
 //		Action action = new LastTrans("13862223435","gookin","460,0,6157,55153");
 //		Action action = new LastTenTrans("13862223435","gookin","460,0,6157,55153");
+//		Calendar c = Calendar.getInstance();
+//		c.set(Calendar.DAY_OF_MONTH, 1);
+//		Action action = new DateTrans("13862223435","gookin","460,0,6157,55153","", c.getTime());
 //		Action.acts(action.setHandler((result)->{
 //			System.out.println(result);
 //		}));

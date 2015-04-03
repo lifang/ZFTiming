@@ -25,6 +25,20 @@ public interface JointManager {
 	 */
 	Page<Bank> bankList(String keyword,PageRequest request, String serialNum);
 	
+	/**
+	 * 从第三方拉去交易流水
+	 * @param terminalId	终端号
+	 * @param tradeTypeId	交易类型
+	 */
+	void pullTrades(Integer terminalId,Integer tradeTypeId);
+	
+	/**
+	 * 提交申请资料
+	 * @param terminal
+	 * @param terminalService
+	 */
+	void submitOpeningApply(Terminal terminal,TerminalService terminalService);
+	
 	class Bank{
 		private String no;
 		private String name;

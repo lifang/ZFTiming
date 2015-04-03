@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
@@ -31,7 +32,7 @@ public class ThirdPartyService {
 	private OpeningApplieMapper openingApplieMapper;
 
 	public String syncStatus(Integer payChannelId,String account,String passwd,Terminal terminal){
-		JointManager manager = managers.get(payChannelId);
+		JointManager manager = switchManager(payChannelId);
 		String status = manager.syncStatus(account, passwd, terminal, terminalService);
 		return status;
 	}
@@ -43,8 +44,24 @@ public class ThirdPartyService {
 	
 	public Page<JointManager.Bank> bankList(String keyword,Integer pageSize,Integer page,
 			Integer payChannelId, String serialNum){
-		JointManager manager = managers.get(payChannelId);
+		JointManager manager = switchManager(payChannelId);
 		PageRequest r = new PageRequest(page, pageSize);
 		return manager.bankList(keyword, r, serialNum);
+	}
+	
+	public void pullTrades(Integer terminalId,Integer payChannelId,Integer tradeTypeId){
+		JointManager manager = switchManager(payChannelId);
+		manager.pullTrades(terminalId, tradeTypeId);
+	}
+	
+	@Async
+	public void submitOpeningApply(Integer terminalId,Integer payChannelId){
+		JointManager manager = switchManager(payChannelId);
+		Terminal terminal = terminalService.findById(terminalId);
+		manager.submitOpeningApply(terminal, terminalService);
+	}
+	
+	private JointManager switchManager(Integer payChannelId){
+		return managers.get(payChannelId.toString());
 	}
 }

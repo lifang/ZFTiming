@@ -21,9 +21,9 @@ import com.comdosoft.financial.timing.service.TradeService;
 
 @RestController
 @RequestMapping("/api/zhonghui")
-public class ZhangFuRecrodsController {
+public class ZhongHuiRecrodsController {
 	
-	private static final Logger LOG = LoggerFactory.getLogger(ZhangFuRecrodsController.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ZhongHuiRecrodsController.class);
 	
 	@Autowired
 	private TradeService tradeService;
