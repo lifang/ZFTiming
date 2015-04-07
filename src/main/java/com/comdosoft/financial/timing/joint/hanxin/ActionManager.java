@@ -148,6 +148,30 @@ public class ActionManager implements JointManager {
 	@Override
 	public void submitOpeningApply(Terminal terminal,
 			TerminalService terminalService) {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE){
+			return;
+		}
+		if(oa.getActivateStatus() != OpeningApplie.ACTIVATE_STATUS_REGISTED) {
+			AccountRegistRequest arreq = new AccountRegistRequest();
+			arreq.setTerminalId(terminal.getSerialNum());
+			arreq.setMerchantName(oa.getMerchantName());
+			arreq.setLegalManName(oa.getMerchant().getLegalPersonName());
+			arreq.setLegalManIdcard(oa.getMerchant().getLegalPersonCardId());
+			arreq.setMobileNum(oa.getPhone());
+			arreq.setPersonalMerRegNo(oa.getMerchant().getBusinessLicenseNo());
+			arreq.setTaxNo(oa.getMerchant().getTaxRegisteredNo());
+			arreq.setOccNo(oa.getMerchant().getOrganizationCodeNo());
+			arreq.setSettleAccountType(oa.getTypes().toString());
+			arreq.setSettleAccount(oa.getAccountBankName());
+			arreq.setSettleAccountNo(oa.getAccountBankNum());
+			arreq.setSettleAgency(oa.getAccountBankCode());
+			arreq.setAccountPwd("123456");
+			AccountRegistRequest.AccountRegistResponse arrsp = (AccountRegistRequest.AccountRegistResponse)acts(arreq);
+		}
+		AccountRegistRequest arr = new AccountRegistRequest();
+		arr.setTerminalId(terminal.getSerialNum());
+		
 		// TODO Auto-generated method stub
 		
 	}

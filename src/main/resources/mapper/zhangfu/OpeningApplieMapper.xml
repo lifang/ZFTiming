@@ -30,7 +30,9 @@
     <result column="tax_registered_no" jdbcType="VARCHAR" property="taxRegisteredNo" />
     <result column="organization_code_no" jdbcType="VARCHAR" property="organizationCodeNo" />
     <result column="billing_cyde_id" jdbcType="INTEGER" property="billingCydeId" />
+    <result column="activate_status" jdbcType="INTEGER" property="activateStatus" />
     <result column="apply_status" jdbcType="VARCHAR" property="applyStatus" />
+    <result column="submit_status" jdbcType="INTEGER" property="submitStatus" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--
@@ -55,7 +57,8 @@
       card_id, phone, email, 
       city_id, name, pay_channel_id, 
       account_bank_num, account_bank_name, account_bank_code, 
-      tax_registered_no, organization_code_no, billing_cyde_id, apply_status
+      tax_registered_no, organization_code_no, billing_cyde_id, 
+      activate_status, apply_status, submit_status
       )
     values (#{applyCustomerId,jdbcType=INTEGER}, #{preliminaryVerifyUserId,jdbcType=INTEGER}, 
       #{terminalId,jdbcType=INTEGER}, #{status,jdbcType=TINYINT}, #{createdAt,jdbcType=TIMESTAMP}, 
@@ -64,8 +67,8 @@
       #{cardId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{cityId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{payChannelId,jdbcType=INTEGER}, 
       #{accountBankNum,jdbcType=VARCHAR}, #{accountBankName,jdbcType=VARCHAR}, #{accountBankCode,jdbcType=VARCHAR}, 
-      #{taxRegisteredNo,jdbcType=VARCHAR}, #{organizationCodeNo,jdbcType=VARCHAR}, #{billingCydeId,jdbcType=INTEGER},
-      #{applyStatus,jdbcType=VARCHAR}
+      #{taxRegisteredNo,jdbcType=VARCHAR}, #{organizationCodeNo,jdbcType=VARCHAR}, #{billingCydeId,jdbcType=INTEGER}, 
+      #{activateStatus,jdbcType=INTEGER}, #{applyStatus,jdbcType=VARCHAR}, #{submitStatus,jdbcType=INTEGER}
       )
   </insert>
   <update id="updateByPrimaryKey" parameterType="com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie">
@@ -97,7 +100,9 @@
       tax_registered_no = #{taxRegisteredNo,jdbcType=VARCHAR},
       organization_code_no = #{organizationCodeNo,jdbcType=VARCHAR},
       billing_cyde_id = #{billingCydeId,jdbcType=INTEGER},
-      apply_status = #{applyStatus,jdbcType=VARCHAR}
+      activate_status = #{activateStatus,jdbcType=INTEGER},
+      apply_status = #{applyStatus,jdbcType=VARCHAR},
+      submit_status = #{submitStatus,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
@@ -108,7 +113,8 @@
     select id, apply_customer_id, preliminary_verify_user_id, terminal_id, status, created_at, 
     updated_at, types, merchant_id, merchant_name, sex, birthday, card_id, phone, email, 
     city_id, name, pay_channel_id, account_bank_num, account_bank_name, account_bank_code, 
-    tax_registered_no, organization_code_no, billing_cyde_id, apply_status
+    tax_registered_no, organization_code_no, billing_cyde_id, activate_status, apply_status, 
+    submit_status
     from opening_applies
     where id = #{id,jdbcType=INTEGER}
   </select>
@@ -120,11 +126,13 @@
     select id, apply_customer_id, preliminary_verify_user_id, terminal_id, status, created_at, 
     updated_at, types, merchant_id, merchant_name, sex, birthday, card_id, phone, email, 
     city_id, name, pay_channel_id, account_bank_num, account_bank_name, account_bank_code, 
-    tax_registered_no, organization_code_no, billing_cyde_id, apply_status
+    tax_registered_no, organization_code_no, billing_cyde_id, activate_status, apply_status, 
+    submit_status
     from opening_applies
   </select>
 
     <resultMap extends="BaseResultMap" id="OpeningApplieResultMap" type="com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie">
+        <association property="merchant" fetchType="lazy" column="merchant_id"  select="com.comdosoft.financial.timing.mapper.zhangfu.MerchantMapper.selectByPrimaryKey" />
         <collection column="id" fetchType="lazy" ofType="com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo" property="terminalOpeningInfos" select="com.comdosoft.financial.timing.mapper.zhangfu.TerminalOpeningInfoMapper.selectTerminalOpeningInfos" />
     </resultMap>
     <select id="selectOpeningApplie" resultMap="OpeningApplieResultMap">
