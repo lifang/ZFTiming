@@ -1,14 +1,20 @@
 package com.comdosoft.financial.timing.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
+import com.comdosoft.financial.timing.mapper.zhangfu.DictionaryOpenPrivateInfoMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.OpeningApplieMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.OperateRecordMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.TerminalMapper;
@@ -25,6 +31,8 @@ public class TerminalService {
 	private TerminalTradeTypeInfoMapper terminalTradeTypeInfoMapper;
 	@Autowired
 	private OperateRecordMapper operateRecordMapper;
+	@Autowired
+	private DictionaryOpenPrivateInfoMapper dictionaryOpenPrivateInfoMapper;
 	
 	public OpeningApplie findOpeningAppylByTerminalId(Integer terminalId){
 		return openingApplieMapper.selectOpeningApplie(terminalId);
@@ -53,6 +61,13 @@ public class TerminalService {
 	
 	public void updateTerminalTradeTypeStatus(Integer status, Integer terminalId){
 		terminalTradeTypeInfoMapper.updateStatus(status, terminalId, null);
+	}
+	
+	@Cacheable("allOpenPrivateInfoMap")
+	public Map<Integer, DictionaryOpenPrivateInfo> allOpenPrivateInfos(){
+		List<DictionaryOpenPrivateInfo> openPrivateInfos = dictionaryOpenPrivateInfoMapper.selectAll();
+		return openPrivateInfos.stream().collect(
+				Collectors.toMap(DictionaryOpenPrivateInfo::getId, Function.identity()));
 	}
 	
 	public List<TerminalTradeTypeInfo> findTerminalTradeTypeInfos(Integer terminalId){

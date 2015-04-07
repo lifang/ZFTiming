@@ -663,4 +663,7 @@ public class OpeningApplie {
     public static final int ACTIVATE_STATUS_NO_ACTIVED = 0;  //未激活
     public static final int ACTIVATE_STATUS_NO_REGISTED = 1; //激活未注册
     public static final int ACTIVATE_STATUS_REGISTED = 2;  //已注册
+    
+    public static final int SUBMIT_STATUS_SUCCESS = 1;
+    public static final int SUBMIT_STATUS_FAIL = 2;
 }

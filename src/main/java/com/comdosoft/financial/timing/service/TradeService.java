@@ -60,7 +60,7 @@ public class TradeService {
 	@Value("${file.trade.record.path}")
 	private String tradeRecordFilePath;
 	
-	@Cacheable("tradeTypes")
+	@Cacheable("allTradeTypeMap")
 	public Map<Integer, DictionaryTradeType> allTradeTypes(){
 		List<DictionaryTradeType> typeList = dictionaryTradeTypeMapper.selectAll();
 		return typeList.stream().collect(

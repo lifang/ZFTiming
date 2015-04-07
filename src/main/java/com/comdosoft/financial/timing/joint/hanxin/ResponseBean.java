@@ -74,7 +74,7 @@ public class ResponseBean implements JointResponse {
 	
 	@Override
 	public boolean isSuccess() {
-		return getResult()==RESULT_SUCCESS;
+		return getResult()==RESULT_SUCCESS && "0000".equals(respCode);
 	}
 	
 	@Override

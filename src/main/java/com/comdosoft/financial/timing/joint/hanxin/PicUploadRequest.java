@@ -17,7 +17,7 @@ import com.comdosoft.financial.timing.joint.JointResponse;
 @XmlRootElement(name=RequestBean.ROOT_ELEMENT_NAME)
 public class PicUploadRequest extends RequestBean {
 	
-	public static final Logger LOG = LoggerFactory.getLogger(PicUploadRequest.class);
+	private static final Logger LOG = LoggerFactory.getLogger(PicUploadRequest.class);
 
 	public PicUploadRequest() {
 		super("PicUpload");

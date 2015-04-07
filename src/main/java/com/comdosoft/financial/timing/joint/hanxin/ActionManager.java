@@ -1,15 +1,19 @@
 package com.comdosoft.financial.timing.joint.hanxin;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.client.protocol.HttpClientContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
@@ -148,11 +152,15 @@ public class ActionManager implements JointManager {
 	@Override
 	public void submitOpeningApply(Terminal terminal,
 			TerminalService terminalService) {
+		LOG.info("start submit opening apply...");
 		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		LOG.info("opening apply id:{},status:{},activate status:{}",oa.getId(),oa.getStatus(),oa.getActivateStatus());
 		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE){
 			return;
 		}
+		String merchantId = null;
 		if(oa.getActivateStatus() != OpeningApplie.ACTIVATE_STATUS_REGISTED) {
+			//账户申请
 			AccountRegistRequest arreq = new AccountRegistRequest();
 			arreq.setTerminalId(terminal.getSerialNum());
 			arreq.setMerchantName(oa.getMerchantName());
@@ -167,12 +175,39 @@ public class ActionManager implements JointManager {
 			arreq.setSettleAccountNo(oa.getAccountBankNum());
 			arreq.setSettleAgency(oa.getAccountBankCode());
 			arreq.setAccountPwd("123456");
+			LOG.info("start regist...");
 			AccountRegistRequest.AccountRegistResponse arrsp = (AccountRegistRequest.AccountRegistResponse)acts(arreq);
+			LOG.info("regist response code:{},desc:{}",arrsp.getRespCode(),arrsp.getRespDesc());
+			if(arrsp.isSuccess()){
+				merchantId = arrsp.getMerchantId();
+				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
+				terminalService.updateOpeningApply(oa);
+			}else{
+				oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_FAIL);
+				terminalService.updateOpeningApply(oa);
+				// TODO 失败内容记录到operate_records
+				return;
+			}
 		}
-		AccountRegistRequest arr = new AccountRegistRequest();
-		arr.setTerminalId(terminal.getSerialNum());
-		
-		// TODO Auto-generated method stub
-		
+		//图片上传
+		List<TerminalOpeningInfo> terminalOpeningInfos = oa.getTerminalOpeningInfos();
+		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
+		for(TerminalOpeningInfo info : terminalOpeningInfos){
+			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE){
+				PicUploadRequest pureq = new PicUploadRequest();
+				pureq.setMerchantId(merchantId);
+				pureq.setPic(new File(info.getValue()));
+				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
+				PicUploadRequest.PicUploadResponse puresp = (PicUploadRequest.PicUploadResponse)acts(pureq);
+				if(!puresp.isSuccess()){
+					oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_FAIL);
+					terminalService.updateOpeningApply(oa);
+					// TODO 失败内容记录到operate_records
+					return;
+				}
+			}
+		}
+		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
+		terminalService.updateOpeningApply(oa);
 	}
 }
