@@ -132,7 +132,8 @@
   </select>
 
     <resultMap extends="BaseResultMap" id="OpeningApplieResultMap" type="com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie">
-        <association property="merchant" fetchType="lazy" column="merchant_id"  select="com.comdosoft.financial.timing.mapper.zhangfu.MerchantMapper.selectByPrimaryKey" />
+        <association property="merchant" fetchType="lazy" column="merchant_id" select="com.comdosoft.financial.timing.mapper.zhangfu.MerchantMapper.selectByPrimaryKey" />
+        <association property="city" fetchType="lazy" column="city_id" select="com.comdosoft.financial.timing.mapper.zhangfu.CityMapper.selectByPrimaryKey" />
         <collection column="id" fetchType="lazy" ofType="com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo" property="terminalOpeningInfos" select="com.comdosoft.financial.timing.mapper.zhangfu.TerminalOpeningInfoMapper.selectTerminalOpeningInfos" />
     </resultMap>
     <select id="selectOpeningApplie" resultMap="OpeningApplieResultMap">

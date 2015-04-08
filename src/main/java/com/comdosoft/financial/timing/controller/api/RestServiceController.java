@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.comdosoft.financial.timing.domain.Response;
+import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.service.TerminalService;
@@ -42,8 +43,8 @@ public class RestServiceController {
 		if(terminalId==null||payChannelId==null){
 			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
 		}
-
-		return Response.getSuccess(null);
+		thirdPartyService.submitOpeningApply(terminalId, payChannelId);
+		return Response.getSuccess("请求处理中...");
 	}
 
 	/**
@@ -79,12 +80,17 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value="/orders/query",method=RequestMethod.POST)
-	public Response queryOrders(Integer terminalId,Integer payChannelId,Integer tradeTypeId){
+	public Response queryOrders(Integer terminalId,Integer payChannelId,
+			Integer tradeTypeId,Integer page,Integer pageSize){
 		if(payChannelId==null||terminalId==null||tradeTypeId==null){
 			return Response.getError("参数[tradeTypeId,terminalId,payChannelId]都不可为空！");
 		}
-
-		return Response.getSuccess(null);
+		Page<TradeRecord> records = thirdPartyService.pullTrades(
+				terminalId, payChannelId, tradeTypeId,page, pageSize);
+		if(records == null) {
+			return Response.getError("第三方交易流水查询失败");
+		}
+		return Response.getSuccess(records);
 	}
 
 	/**

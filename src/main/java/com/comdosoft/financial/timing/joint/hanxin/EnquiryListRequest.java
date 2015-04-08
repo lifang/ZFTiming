@@ -176,7 +176,7 @@ public class EnquiryListRequest extends RequestBean {
 		private String transType;
 		private String transId;
 		private String merchantOrderId;
-		private String transAmt;
+		private int transAmt;
 		private String transTime;
 		private String currency;
 		
@@ -198,10 +198,10 @@ public class EnquiryListRequest extends RequestBean {
 		public void setMerchantOrderId(String merchantOrderId) {
 			this.merchantOrderId = merchantOrderId;
 		}
-		public String getTransAmt() {
+		public int getTransAmt() {
 			return transAmt;
 		}
-		public void setTransAmt(String transAmt) {
+		public void setTransAmt(int transAmt) {
 			this.transAmt = transAmt;
 		}
 		public String getTransTime() {

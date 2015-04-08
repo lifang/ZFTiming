@@ -1,15 +1,17 @@
 package com.comdosoft.financial.timing.joint.hanxin;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.http.client.protocol.HttpClientContext;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
@@ -18,6 +20,7 @@ import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
+import com.comdosoft.financial.timing.joint.hanxin.EnquiryListRequest.OrderInfo;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.HttpUtils;
 import com.comdosoft.financial.timing.utils.page.Page;
@@ -141,9 +144,30 @@ public class ActionManager implements JointManager {
 	 * @see com.comdosoft.financial.timing.joint.JointManager#pullTrades(java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public void pullTrades(Integer terminalId, Integer tradeTypeId) {
-		// TODO Auto-generated method stub
-		
+	public Page<TradeRecord> pullTrades(Terminal terminal, Integer tradeTypeId, PageRequest request) {
+		EnquiryListRequest elreq = new EnquiryListRequest();
+		elreq.setTerminalId(terminal.getSerialNum());
+		DateTime time = DateTime.now().minusMonths(3);
+		elreq.setBeginTime(time.toString(DateTimeFormat.forPattern("yyyyMMddHHmmss")));
+		elreq.setPlatformId(terminal.getReserver1());
+		elreq.setCurPage(request.getPage());
+		elreq.setPageCount(request.getPageSize());
+		EnquiryListRequest.EnquiryListResponse elresp = (EnquiryListRequest.EnquiryListResponse)acts(elreq);
+		if(!elresp.isSuccess()){
+			return null;
+		}
+		List<OrderInfo> infos = elresp.getOrderInfos();
+		List<TradeRecord> records = new ArrayList<>();
+		//把order info转化成trade record
+		for(OrderInfo info : infos) {
+			TradeRecord tr = new TradeRecord();
+			tr.setAmount(info.getTransAmt());
+			tr.setTradeNumber(info.getTransId());
+			tr.setSysOrderId(info.getMerchantOrderId());
+			tr.setTypes(Byte.valueOf(info.getTransType()));
+			records.add(tr);
+		}
+		return new Page<TradeRecord>(request, records, elresp.getTotalCount());
 	}
 
 	/* (non-Javadoc)
@@ -154,8 +178,9 @@ public class ActionManager implements JointManager {
 			TerminalService terminalService) {
 		LOG.info("start submit opening apply...");
 		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
-		LOG.info("opening apply id:{},status:{},activate status:{}",oa.getId(),oa.getStatus(),oa.getActivateStatus());
-		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE){
+		LOG.info("opening apply [{}] status:{},activate status:{}",oa.getId(),oa.getStatus(),oa.getActivateStatus());
+		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE
+				|| oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
 			return;
 		}
 		String merchantId = null;
@@ -175,17 +200,15 @@ public class ActionManager implements JointManager {
 			arreq.setSettleAccountNo(oa.getAccountBankNum());
 			arreq.setSettleAgency(oa.getAccountBankCode());
 			arreq.setAccountPwd("123456");
-			LOG.info("start regist...");
+			LOG.info("apply [{}] start regist...",oa.getId());
 			AccountRegistRequest.AccountRegistResponse arrsp = (AccountRegistRequest.AccountRegistResponse)acts(arreq);
-			LOG.info("regist response code:{},desc:{}",arrsp.getRespCode(),arrsp.getRespDesc());
+			LOG.info("apply [{}] regist response code:{},desc:{}",oa.getId(),arrsp.getRespCode(),arrsp.getRespDesc());
 			if(arrsp.isSuccess()){
 				merchantId = arrsp.getMerchantId();
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
 				terminalService.updateOpeningApply(oa);
 			}else{
-				oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_FAIL);
-				terminalService.updateOpeningApply(oa);
-				// TODO 失败内容记录到operate_records
+				terminalService.recordSubmitFail(oa,"账户申请",arrsp.getRespCode(),arrsp.getRespDesc());
 				return;
 			}
 		}
@@ -194,15 +217,16 @@ public class ActionManager implements JointManager {
 		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
 		for(TerminalOpeningInfo info : terminalOpeningInfos){
 			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE){
+				LOG.info("apply [{}] start image upload... type:{},value:{}",oa.getId(),
+						infos.get(info.getTargetId()).getQueryMark(),info.getValue());
 				PicUploadRequest pureq = new PicUploadRequest();
 				pureq.setMerchantId(merchantId);
-				pureq.setPic(new File(info.getValue()));
+				pureq.setPic(terminalService.path2File((info.getValue())));
 				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
 				PicUploadRequest.PicUploadResponse puresp = (PicUploadRequest.PicUploadResponse)acts(pureq);
+				LOG.info("apply [{}] image upload response code:{},desc:{}",oa.getId(),puresp.getRespCode(),puresp.getRespDesc());
 				if(!puresp.isSuccess()){
-					oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_FAIL);
-					terminalService.updateOpeningApply(oa);
-					// TODO 失败内容记录到operate_records
+					terminalService.recordSubmitFail(oa,"图片上传",puresp.getRespCode(),puresp.getRespDesc());
 					return;
 				}
 			}

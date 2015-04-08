@@ -234,4 +234,11 @@ public class OperateRecord {
 	public void setContent(String content) {
 		this.content = content;
 	}
+	
+	public static final int TYPE_OPENING_APPLY = 31;//接口-申请开通操作
+	public static final int TYPE_TRADE_RECORD = 32;//接口-交易流水操作
+	public static final int TYPE_OTHER = 33;//接口-其他操作
+	
+	public static final byte TARGET_TYPE_OPENING_APPYL = 1; //开通申请
+	public static final byte TARGET_TYPE_TERMINAL = 2;	//终端
 }

@@ -1,5 +1,6 @@
 package com.comdosoft.financial.timing.joint;
 
+import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.page.Page;
@@ -30,7 +31,7 @@ public interface JointManager {
 	 * @param terminalId	终端号
 	 * @param tradeTypeId	交易类型
 	 */
-	void pullTrades(Integer terminalId,Integer tradeTypeId);
+	Page<TradeRecord> pullTrades(Terminal terminal,Integer tradeTypeId,PageRequest request);
 	
 	/**
 	 * 提交申请资料

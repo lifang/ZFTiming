@@ -629,6 +629,7 @@ public class OpeningApplie {
 
 	private List<TerminalOpeningInfo> terminalOpeningInfos;
 	private Merchant merchant;
+	private City city;
 
     public List<TerminalOpeningInfo> getTerminalOpeningInfos() {
         return terminalOpeningInfos;
@@ -644,6 +645,14 @@ public class OpeningApplie {
 
 	public void setMerchant(Merchant merchant) {
 		this.merchant = merchant;
+	}
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
 	}
 
 	public static final  Integer TYPE_PUBLIC = 1;

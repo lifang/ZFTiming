@@ -1,5 +1,8 @@
 package com.comdosoft.financial.timing.service;
 
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
+import com.comdosoft.financial.timing.domain.zhangfu.OperateRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.mapper.zhangfu.DictionaryOpenPrivateInfoMapper;
@@ -74,6 +78,10 @@ public class TerminalService {
 		return terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminalId);
 	}
 	
+	public File path2File(String path) {
+		return new File(path);
+	}
+	
 	public Integer findNotTradeTypeStatus(Terminal terminal) {
 		List<TerminalTradeTypeInfo> infos = terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminal.getId());
 		for(TerminalTradeTypeInfo info : infos) {
@@ -101,8 +109,33 @@ public class TerminalService {
 		terminal.setStatus(terminalStatus);
 		terminalMapper.updateByPrimaryKey(terminal);
 		
-		//TODO 将这次的传递过来的参数拼接存入到operate_records中
-		
-		
+		//将这次的传递过来的参数拼接存入到operate_records中
+		saveOperateRecord(
+				OperateRecord.TYPE_TRADE_RECORD,
+				terminal.getId(),
+				OperateRecord.TARGET_TYPE_TERMINAL,
+				MessageFormat.format("terminal[{0}] idCard:{1},name:{2}", terminal.getSerialNum(), idCard,name));
+	}
+	
+	public void recordSubmitFail(OpeningApplie oa,String type,String code,String msg){
+		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_FAIL);
+		updateOpeningApply(oa);
+		//失败内容记录到operate_records
+		saveOperateRecord(
+				OperateRecord.TYPE_OPENING_APPLY,
+				oa.getId(),
+				OperateRecord.TARGET_TYPE_OPENING_APPYL,
+				MessageFormat.format("[{0}] code:{1},msg:{2}", type, code,msg));
+	}
+	
+	public void saveOperateRecord(Integer type,Integer targetId,Byte targetType,String content) {
+		OperateRecord or = new OperateRecord();
+		or.setCreatedAt(new Date());
+		or.setUpdatedAt(new Date());
+		or.setTypes(type);
+		or.setOperateTargetId(targetId);
+		or.setOperateTargetType(targetType);
+		or.setContent(content);
+		operateRecordMapper.insert(or);
 	}
 }

@@ -1,20 +1,29 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.comdosoft.financial.timing.domain.trades.TradeRecord;
+import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
+import com.comdosoft.financial.timing.joint.zhonghui.transactions.LastTenTrans;
+import com.comdosoft.financial.timing.joint.zhonghui.transactions.Transaction;
+import com.comdosoft.financial.timing.joint.zhonghui.transactions.TransactionAction;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.page.Page;
 import com.comdosoft.financial.timing.utils.page.PageRequest;
@@ -133,9 +142,25 @@ public class ActionManager implements JointManager{
 	 * @see com.comdosoft.financial.timing.joint.JointManager#pullTrades(java.lang.Integer, java.lang.Integer)
 	 */
 	@Override
-	public void pullTrades(Integer terminalId, Integer tradeTypeId) {
-		// TODO Auto-generated method stub
-		
+	public Page<TradeRecord> pullTrades(Terminal terminal, Integer tradeTypeId, PageRequest request) {
+		PageRequest r = new PageRequest(1, 10);
+		LastTenTrans ltt = new LastTenTrans(terminal.getAccount(), terminal.getPassword(), null, appVersion);
+		TransactionAction.TransResult tr = (TransactionAction.TransResult)acts(ltt);
+		if(!tr.isSuccess()){
+			LOG.info("交易流水查询失败,code:{},msg:{}", tr.getRespCode(),tr.getRespMsg());
+			return null;
+		}
+		List<Transaction> trans =  tr.getTransactions();
+		List<TradeRecord> records = new ArrayList<>();
+		for(Transaction tran : trans){
+			TradeRecord record = new TradeRecord();
+			record.setSysOrderId(Integer.toString(tran.getRespNo()));
+			record.setAmount(tran.getAmount());
+			record.setPaidCode(Integer.parseInt(tran.getRespCode()));
+			record.setPoundage(tran.getFeeAmount());
+			records.add(record);
+		}
+		return new Page<TradeRecord>(r, records, records.size());
 	}
 
 	/* (non-Javadoc)
@@ -144,8 +169,113 @@ public class ActionManager implements JointManager{
 	@Override
 	public void submitOpeningApply(Terminal terminal,
 			TerminalService terminalService) {
-		// TODO Auto-generated method stub
 		
+		LOG.info("start submit opening apply...");
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		LOG.info("opening apply id:{},status:{},activate status:{}",oa.getId(),oa.getStatus(),oa.getActivateStatus());
+		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE
+				|| oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
+			return;
+		}
+		
+		//刷卡器激活
+		if(oa.getActivateStatus() == OpeningApplie.ACTIVATE_STATUS_NO_ACTIVED) {
+			LOG.info("apply [{}] start activate...",oa.getId());
+			ActivateAction aa = new ActivateAction(terminal.getReserver2(), terminal.getSerialNum(), appVersion, product);
+			ActivateAction.ActivateResult ar = (ActivateAction.ActivateResult)acts(aa);
+			LOG.info("apply [{}] activate result... code:{},msg:{}",oa.getId(),ar.getRespCode(),ar.getRespMsg());
+			if(ar.isSuccess()) {
+				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_NO_REGISTED);
+				terminalService.updateOpeningApply(oa);
+			}else {
+				terminalService.recordSubmitFail(oa,"刷卡器激活",ar.getRespCode(),ar.getRespMsg());
+				return;
+			}
+		}
+		
+		//图片
+		Map<String,File> picMap = new HashMap<>();
+		List<TerminalOpeningInfo> terminalOpeningInfos = oa.getTerminalOpeningInfos();
+		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
+		for(TerminalOpeningInfo info : terminalOpeningInfos){
+			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE){
+				String type = infos.get(info.getTargetId()).getQueryMark();
+				picMap.put(type, terminalService.path2File(info.getValue()));
+			}
+		}
+		
+		//用户注册
+		if(oa.getActivateStatus() == OpeningApplie.ACTIVATE_STATUS_NO_REGISTED) {
+			LOG.info("apply [{}] start regist...",oa.getId());
+			RegistAction ra = new RegistAction(terminal.getSerialNum(), oa.getName(), oa.getPhone(),
+					"123456", null, appVersion, product, picMap.get("signature"));
+			Result r = (Result)acts(ra);
+			LOG.info("apply [{}] regist result... code:{},msg:{}",oa.getId(),r.getRespCode(),r.getRespMsg());
+			if(r.isSuccess()){
+				terminal.setAccount(oa.getPhone());
+				terminal.setPassword("123456");
+				terminalService.updateTerminal(terminal);
+				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
+				terminalService.updateOpeningApply(oa);
+			}else {
+				terminalService.recordSubmitFail(oa,"用户注册",r.getRespCode(),r.getRespMsg());
+				return;
+			}
+		}
+		
+		//实名认证
+		LOG.info("apply [{}] start real name auth...",oa.getId());
+		RealnameAuthAction raa = new RealnameAuthAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion,
+				oa.getMerchant().getLegalPersonName(),
+				oa.getMerchant().getLegalPersonCardId(),
+				terminalService.path2File(oa.getMerchant().getCardIdFrontPhotoPath()),
+				terminalService.path2File(oa.getMerchant().getCardIdBackPhotoPath()));
+		Result raar = (Result)acts(raa);
+		LOG.info("apply [{}] real name auth result... code:{},msg:{}",
+				oa.getId(),raar.getRespCode(),raar.getRespMsg());
+		if(!raar.isSuccess()){
+			terminalService.recordSubmitFail(oa,"实名认证",raar.getRespCode(),raar.getRespMsg());
+			return;
+		}
+		
+		//商户认证
+		LOG.info("apply [{}] start merchant auth...",oa.getId());
+		MerchantAuthAction maa = new MerchantAuthAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion,
+				oa.getMerchantName(),
+				oa.getCity().getName(),
+				oa.getMerchant().getBusinessLicenseNo(),
+				picMap.get("business"),
+				picMap.get("businessPlace"),
+				picMap.get("cashierDesk"));
+		Result maar = (Result)acts(maa);
+		LOG.info("apply [{}] merchant auth result... code:{},msg:{}",
+				oa.getId(),maar.getRespCode(),maar.getRespMsg());
+		if(!maar.isSuccess()){
+			terminalService.recordSubmitFail(oa,"商户认证",maar.getRespCode(),maar.getRespMsg());
+			return;
+		}
+		
+		//账户认证
+		LOG.info("apply [{}] start account auth...",oa.getId());
+		AccountAuthAction aaa = new AccountAuthAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion,
+				oa.getAccountBankName(),
+				oa.getAccountBankNum(),
+				oa.getMerchant().getLegalPersonName(),
+				oa.getAccountBankCode(),
+				picMap.get("card"));
+		Result aaar = (Result)acts(aaa);
+		LOG.info("apply [{}] account auth result... code:{},msg:{}",
+				oa.getId(),aaar.getRespCode(),aaar.getRespMsg());
+		if(!aaar.isSuccess()){
+			terminalService.recordSubmitFail(oa,"账户认证",aaar.getRespCode(),aaar.getRespMsg());
+			return;
+		}
+		
+		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
+		terminalService.updateOpeningApply(oa);
 	}
-
+	
 }

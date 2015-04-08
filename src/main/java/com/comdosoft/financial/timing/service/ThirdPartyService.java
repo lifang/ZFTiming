@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.joint.JointManager;
@@ -49,9 +50,18 @@ public class ThirdPartyService {
 		return manager.bankList(keyword, r, serialNum);
 	}
 	
-	public void pullTrades(Integer terminalId,Integer payChannelId,Integer tradeTypeId){
+	public Page<TradeRecord> pullTrades(Integer terminalId,Integer payChannelId,
+			Integer tradeTypeId,Integer page,Integer pageSize){
+		if(page == null) {
+			page = 1;
+		}
+		if(pageSize == null) {
+			pageSize = 10;
+		}
+		Terminal terminal = terminalService.findById(terminalId);
 		JointManager manager = switchManager(payChannelId);
-		manager.pullTrades(terminalId, tradeTypeId);
+		PageRequest request = new PageRequest(page, pageSize);
+		return manager.pullTrades(terminal, tradeTypeId,request);
 	}
 	
 	@Async
