@@ -274,6 +274,18 @@ public class ActionManager implements JointManager{
 			return;
 		}
 		
+		//协议签名
+		LOG.info("apply [{}] start sign auth...",oa.getId());
+		SignAuthAction saa = new SignAuthAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion, picMap.get("signature"));
+		Result saar = (Result)acts(saa);
+		LOG.info("apply [{}] sign auth result... code:{},msg:{}",
+				oa.getId(),saar.getRespCode(),saar.getRespMsg());
+		if(!saar.isSuccess()){
+			terminalService.recordSubmitFail(oa,"协议签名",aaar.getRespCode(),aaar.getRespMsg());
+			return;
+		}
+		
 		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
 		terminalService.updateOpeningApply(oa);
 	}

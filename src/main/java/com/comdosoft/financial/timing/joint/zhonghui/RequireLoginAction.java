@@ -32,6 +32,13 @@ public abstract class RequireLoginAction extends Action {
 
 	@Override
 	protected Map<String, String> headers() {
+		checkLogin();
+		Map<String,String> headers = Maps.newHashMap();
+		headers.put("WSHSNO", loggedInfo.get(phoneNum).getSession());
+		return headers;
+	}
+	
+	private LoginResult checkLogin(){
 		LoginResult result = loggedInfo.get(phoneNum);
 		if(result == null) {
 			try {
@@ -43,9 +50,26 @@ public abstract class RequireLoginAction extends Action {
 				LOG.error("login error",e);
 			}
 		}
-		Map<String,String> headers = Maps.newHashMap();
-		headers.put("WSHSNO", loggedInfo.get(phoneNum).getSession());
-		return headers;
+		return result;
+	}
+
+	@Override
+	protected boolean checkStatus() {
+		LoginResult lr = checkLogin();
+		int index = checkIndex();
+		if(index==-1){
+			return false;
+		}
+		char c = lr.getStatus().charAt(index);
+		return c==1||c==2;
+	}
+	
+	/**
+	 * 需要检查status的index
+	 * @return
+	 */
+	protected int checkIndex(){
+		return -1;
 	}
 
 	@Override

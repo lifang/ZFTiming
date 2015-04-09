@@ -37,4 +37,9 @@ public class SignAuthAction extends RequireLoginAction {
 		return Result.class;
 	}
 
+	@Override
+	protected int checkIndex() {
+		return 3;
+	}
+
 }

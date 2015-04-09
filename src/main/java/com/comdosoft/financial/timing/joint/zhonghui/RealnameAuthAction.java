@@ -52,4 +52,9 @@ public class RealnameAuthAction extends RequireLoginAction {
 		return Result.class;
 	}
 
+	@Override
+	protected int checkIndex() {
+		return 0;
+	}
+
 }

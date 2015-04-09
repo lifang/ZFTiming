@@ -55,4 +55,9 @@ public class AccountAuthAction extends RequireLoginAction {
 		return Result.class;
 	}
 
+	@Override
+	protected int checkIndex() {
+		return 2;
+	}
+
 }

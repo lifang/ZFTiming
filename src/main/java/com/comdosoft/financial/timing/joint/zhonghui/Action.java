@@ -37,6 +37,10 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 		String url = manager.getBaseUrl() + url();
 		LOG.debug("url:{}",url);
 		Result result = null;
+		//检查状态是否还需要请求
+		if(checkStatus()){
+			return Result.SUCCESS;
+		}
 		if(getMethod() == Method.POST) {
 			result = HttpUtils.post(url, headers(),
 					params(), fileParams(), this);
@@ -46,6 +50,14 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 					params(), this);
 		}
 		return result;
+	}
+	
+	/**
+	 * 检查状态，是否还需要发送请求
+	 * @return
+	 */
+	protected boolean checkStatus(){
+		return false;
 	}
 	
 	@Override

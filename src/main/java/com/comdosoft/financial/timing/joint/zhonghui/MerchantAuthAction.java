@@ -58,4 +58,9 @@ public class MerchantAuthAction extends RequireLoginAction{
 	protected Class<? extends Result> getResultType() {
 		return Result.class;
 	}
+
+	@Override
+	protected int checkIndex() {
+		return 1;
+	}
 }
