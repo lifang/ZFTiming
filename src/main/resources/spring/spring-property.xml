@@ -20,12 +20,6 @@
 
 	<!-- local -->
 	<beans profile="local">
-		<mvc:interceptors>
-			<mvc:interceptor>
-				<mvc:mapping path=""/>
-				<bean class="" />
-			</mvc:interceptor>
-		</mvc:interceptors>
 		<context:property-placeholder location="classpath:config/local.properties" />
 	</beans>
 
