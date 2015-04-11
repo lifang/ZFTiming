@@ -1,6 +1,7 @@
 package com.comdosoft.financial.timing.service;
 
-import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -8,8 +9,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
@@ -26,6 +31,8 @@ import com.comdosoft.financial.timing.mapper.zhangfu.TerminalTradeTypeInfoMapper
 
 @Service
 public class TerminalService {
+	
+	private static final Logger LOG = LoggerFactory.getLogger(TerminalService.class);
 
 	@Autowired
 	private TerminalMapper terminalMapper;
@@ -37,6 +44,8 @@ public class TerminalService {
 	private OperateRecordMapper operateRecordMapper;
 	@Autowired
 	private DictionaryOpenPrivateInfoMapper dictionaryOpenPrivateInfoMapper;
+	@Value("${file.http.domain}")
+	private String fileHttpRoot;
 	
 	public OpeningApplie findOpeningAppylByTerminalId(Integer terminalId){
 		return openingApplieMapper.selectOpeningApplie(terminalId);
@@ -78,8 +87,14 @@ public class TerminalService {
 		return terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminalId);
 	}
 	
-	public File path2File(String path) {
-		return new File(path);
+	public InputStream path2InputStream(String path){
+		try {
+			UrlResource ur = new UrlResource(fileHttpRoot+path);
+			return ur.getInputStream();
+		} catch (IOException e) {
+			LOG.error("",e);
+		}
+		return null;
 	}
 	
 	public Integer findNotTradeTypeStatus(Terminal terminal) {

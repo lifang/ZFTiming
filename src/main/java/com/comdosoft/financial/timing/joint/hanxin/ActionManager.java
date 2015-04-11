@@ -221,7 +221,7 @@ public class ActionManager implements JointManager {
 						infos.get(info.getTargetId()).getQueryMark(),info.getValue());
 				PicUploadRequest pureq = new PicUploadRequest();
 				pureq.setMerchantId(merchantId);
-				pureq.setPic(terminalService.path2File((info.getValue())));
+				pureq.setPic(terminalService.path2InputStream((info.getValue())));
 				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
 				PicUploadRequest.PicUploadResponse puresp = (PicUploadRequest.PicUploadResponse)acts(pureq);
 				LOG.info("apply [{}] image upload response code:{},desc:{}",oa.getId(),puresp.getRespCode(),puresp.getRespDesc());

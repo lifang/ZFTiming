@@ -1,6 +1,6 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -15,11 +15,11 @@ public class AccountAuthAction extends RequireLoginAction {
 	private String accountNo;
 	private String name;
 	private String unionBankNo;
-	private File card;
+	private InputStream card;
 
 	public AccountAuthAction(String phoneNum, String password, String position, String appVersion,
 			String bankDeposit, String accountNo, String name,
-			String unionBankNo, File card) {
+			String unionBankNo, InputStream card) {
 		super(phoneNum, password, position, appVersion);
 		this.bankDeposit = bankDeposit;
 		this.accountNo = accountNo;
@@ -39,8 +39,8 @@ public class AccountAuthAction extends RequireLoginAction {
 	}
 
 	@Override
-	protected Map<String, File> fileParams() {
-		Map<String, File> params = Maps.newHashMap();
+	protected Map<String, InputStream> fileParams() {
+		Map<String, InputStream> params = Maps.newHashMap();
 		params.put("card", card);
 		return params;
 	}

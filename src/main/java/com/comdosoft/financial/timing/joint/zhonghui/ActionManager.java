@@ -1,7 +1,7 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -194,13 +194,13 @@ public class ActionManager implements JointManager{
 		}
 		
 		//图片
-		Map<String,File> picMap = new HashMap<>();
+		Map<String,InputStream> picMap = new HashMap<>();
 		List<TerminalOpeningInfo> terminalOpeningInfos = oa.getTerminalOpeningInfos();
 		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
 		for(TerminalOpeningInfo info : terminalOpeningInfos){
 			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE){
 				String type = infos.get(info.getTargetId()).getQueryMark();
-				picMap.put(type, terminalService.path2File(info.getValue()));
+				picMap.put(type, terminalService.path2InputStream(info.getValue()));
 			}
 		}
 		
@@ -229,8 +229,8 @@ public class ActionManager implements JointManager{
 				null, appVersion,
 				oa.getMerchant().getLegalPersonName(),
 				oa.getMerchant().getLegalPersonCardId(),
-				terminalService.path2File(oa.getMerchant().getCardIdFrontPhotoPath()),
-				terminalService.path2File(oa.getMerchant().getCardIdBackPhotoPath()));
+				terminalService.path2InputStream(oa.getMerchant().getCardIdFrontPhotoPath()),
+				terminalService.path2InputStream(oa.getMerchant().getCardIdBackPhotoPath()));
 		Result raar = (Result)acts(raa);
 		LOG.info("apply [{}] real name auth result... code:{},msg:{}",
 				oa.getId(),raar.getRespCode(),raar.getRespMsg());

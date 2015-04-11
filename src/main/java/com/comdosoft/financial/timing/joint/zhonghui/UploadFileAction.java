@@ -1,6 +1,6 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.File;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Map;
 
@@ -14,18 +14,18 @@ import com.google.common.collect.Maps;
 public class UploadFileAction extends RequireLoginAction {
 	
 	private Type type;
-	private File photo;
+	private InputStream photo;
 
 	public UploadFileAction(String phoneNum, String password, String position, String appVersion,
-			Type type, File photo) {
+			Type type, InputStream photo) {
 		super(phoneNum, password, position, appVersion);
 		this.type = type;
 		this.photo = photo;
 	}
 
 	@Override
-	protected Map<String, File> fileParams() {
-		Map<String, File> fileParams = Maps.newHashMap();
+	protected Map<String, InputStream> fileParams() {
+		Map<String, InputStream> fileParams = Maps.newHashMap();
 		fileParams.put("photo", photo);
 		return fileParams;
 	}

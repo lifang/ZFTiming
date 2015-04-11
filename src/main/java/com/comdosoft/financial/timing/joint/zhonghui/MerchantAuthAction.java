@@ -1,6 +1,6 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -15,13 +15,13 @@ public class MerchantAuthAction extends RequireLoginAction{
 	private String companyName;
 	private String regPlace;
 	private String businessLicense;
-	private File business;
-	private File businessPlace;
-	private File cashierDesk;
+	private InputStream business;
+	private InputStream businessPlace;
+	private InputStream cashierDesk;
 
 	public MerchantAuthAction(String phoneNum, String password, String position, String appVersion,
 			String companyName, String regPlace,
-			String businessLicense,File business, File businessPlace, File cashierDesk) {
+			String businessLicense,InputStream business, InputStream businessPlace, InputStream cashierDesk) {
 		super(phoneNum, password, position, appVersion);
 		this.companyName = companyName;
 		this.regPlace = regPlace;
@@ -41,8 +41,8 @@ public class MerchantAuthAction extends RequireLoginAction{
 	}
 
 	@Override
-	protected Map<String, File> fileParams() {
-		Map<String, File> fileParams = Maps.newHashMap();
+	protected Map<String, InputStream> fileParams() {
+		Map<String, InputStream> fileParams = Maps.newHashMap();
 		fileParams.put("business", business);
 		fileParams.put("businessPlace", businessPlace);
 		fileParams.put("cashierDesk", cashierDesk);
