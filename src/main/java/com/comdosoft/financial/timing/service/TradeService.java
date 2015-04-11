@@ -132,13 +132,13 @@ public class TradeService {
 		tradeRecord.setPayChannelId(terminal.getPayChannelId());
 		tradeRecord.setCustomerId(terminal.getCustomerId());
 		tradeRecord.setCreatedAt(new Date());
+		tradeRecord.setPayFromAccount(record.getPayCardNo());
 		tradeRecordMapper.insert(tradeRecord);
 		
 		switch(record.getTransaction().getType()){
 		case "feePhone":
 			TradeRechargeRecord trr = new TradeRechargeRecord();
 			trr.setId(tradeRecord.getId());
-			trr.setPayFromAccount(record.getPayCardNo());
 			trr.setPhone(record.getTransaction().getFeePhone());
 			trr.setArrivedResult(Integer.parseInt(record.getResult().getDeliveryStatus()));
 			trr.setArrivedCode(Integer.parseInt(record.getResult().getDeliveryResultCode()));
@@ -152,7 +152,6 @@ public class TradeService {
 		case "transfer":
 			TradeTransferRepaymentRecord ttrr = new TradeTransferRepaymentRecord();
 			ttrr.setId(tradeRecord.getId());
-			ttrr.setPayFromAccount(record.getPayCardNo());
 			ttrr.setPayIntoAccount(record.getTransaction().getToAccount());
 			ttrr.setArrivedResult(Integer.parseInt(record.getResult().getDeliveryStatus()));
 			ttrr.setArrivedCode(Integer.parseInt(record.getResult().getDeliveryResultCode()));
@@ -225,9 +224,9 @@ public class TradeService {
 		tradeRecord.setAgentId(terminal.getAgentId());
 		tradeRecord.setPayChannelId(terminal.getPayChannelId());
 		tradeRecord.setCustomerId(terminal.getCustomerId());
+		tradeRecord.setPayFromAccount(cardNo);
 		tradeRecordMapper.insert(tradeRecord);
 		TradeConsumeRecord tcr = new TradeConsumeRecord();
-		tcr.setPayFromAccount(cardNo);
 		tcr.setId(tradeRecord.getId());
 		tcr.setCreatedAt(new Date());
 		tcr.setUpdatedAt(new Date());
