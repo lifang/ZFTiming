@@ -288,6 +288,8 @@ public class ActionManager implements JointManager{
 		
 		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
 		terminalService.updateOpeningApply(oa);
+		
+		RequireLoginAction.clearLoginInfo(terminal.getAccount());
 	}
 	
 }

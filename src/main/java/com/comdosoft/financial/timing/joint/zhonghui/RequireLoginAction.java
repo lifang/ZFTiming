@@ -105,6 +105,8 @@ public abstract class RequireLoginAction extends Action {
 		return result;
 	}
 	
-	
+	public static void clearLoginInfo(String phoneNum){
+		loggedInfo.remove(phoneNum);
+	}
 
 }
