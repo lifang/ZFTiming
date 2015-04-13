@@ -64,7 +64,7 @@ public abstract class RequireLoginAction extends Action {
 			return false;
 		}
 		char c = lr.getStatus().charAt(index);
-		return c==1||c==2;
+		return c!=1&&c!=2;
 	}
 	
 	/**
