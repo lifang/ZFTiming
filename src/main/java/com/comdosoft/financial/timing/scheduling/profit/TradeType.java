@@ -21,6 +21,10 @@ public class TradeType implements CalculateType {
 			return;
 		}
 		Terminal terminal = cp.selectRecordTerminal(record);
+		if(terminal == null) {
+			cp.setCalculateFail(record);
+			return;
+		}
 		DictionaryBillingCycle billingCycle = terminal.getBillingCycle();
 		Integer basePoundage = terminal.getBaseRate()*record.getAmount()/1000;
 		Integer servicePoundage = billingCycle.getServiceRate()*record.getAmount()/1000;
