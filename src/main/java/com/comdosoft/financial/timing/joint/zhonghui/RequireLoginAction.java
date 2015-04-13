@@ -19,14 +19,16 @@ public abstract class RequireLoginAction extends Action {
 	
 	private String phoneNum;
 	private String password;
-	private String position;
+	private String position = "460,0,6157,55153";
 	private String appVersion;
 
 	public RequireLoginAction(String phoneNum, String password,
 			String position, String appVersion) {
 		this.phoneNum = phoneNum;
 		this.password = password;
-		this.position = position;
+		if(position != null) {
+			this.position = position;
+		}
 		this.appVersion = appVersion;
 	}
 
@@ -46,6 +48,7 @@ public abstract class RequireLoginAction extends Action {
 						appVersion,manager.getProduct());
 				LoginResult lr = (LoginResult)la.process(manager);
 				loggedInfo.put(phoneNum, lr);
+				result = lr;
 			} catch (IOException e) {
 				LOG.error("login error",e);
 			}

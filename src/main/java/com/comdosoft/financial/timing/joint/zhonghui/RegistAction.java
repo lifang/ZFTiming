@@ -16,7 +16,7 @@ public class RegistAction extends Action {
 	private String name;			//个人姓名
 	private String mobile;			//手机号
 	private String password;		//登陆密码
-	private String registPosition;	//注册位置
+	private String registPosition = "460,0,6157,55153";	//注册位置
 	private String appVersion;		//软件版本	
 	private String product;			//软件品牌
 	private InputStream signature;			//签名文件
@@ -29,7 +29,9 @@ public class RegistAction extends Action {
 		this.name = name;
 		this.mobile = mobile;
 		this.password = password;
-		this.registPosition = registPosition;
+		if(registPosition!=null) {
+			this.registPosition = registPosition;
+		}
 		this.appVersion = appVersion;
 		this.product = product;
 		this.signature = signature;

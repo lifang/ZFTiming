@@ -13,7 +13,7 @@ public class LoginAction extends Action {
 	
 	private String phoneNum;
 	private String password;
-	private String position;
+	private String position = "460,0,6157,55153";
 	private String appVersion;
 	private String product;
 	
@@ -21,7 +21,9 @@ public class LoginAction extends Action {
 			String appVersion, String product) {
 		this.phoneNum = phoneNum;
 		this.password = password;
-		this.position = position;
+		if(position != null){
+			this.position = position;
+		}
 		this.appVersion = appVersion;
 		this.product = product;
 	}
