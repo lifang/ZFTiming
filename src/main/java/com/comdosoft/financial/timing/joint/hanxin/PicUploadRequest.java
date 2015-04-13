@@ -2,8 +2,8 @@ package com.comdosoft.financial.timing.joint.hanxin;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -52,7 +52,7 @@ public class PicUploadRequest extends RequestBean {
 		this.picBuffer = picBuffer;
 	}
 	
-	public void setPic(InputStream pic) {
+	public void setPic(File pic) {
 		try {
 			BufferedImage bi = ImageIO.read(pic);    
             ByteArrayOutputStream baos = new ByteArrayOutputStream();    

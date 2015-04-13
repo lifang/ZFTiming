@@ -1,6 +1,6 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -14,11 +14,11 @@ public class RealnameAuthAction extends RequireLoginAction {
 	
 	private String name;
 	private String idNumber;
-	private InputStream personal;
-	private InputStream personalBack;
+	private File personal;
+	private File personalBack;
 
 	public RealnameAuthAction(String phoneNum, String password, String position, String appVersion,
-			String name, String idNumber, InputStream personal, InputStream personalBack) {
+			String name, String idNumber, File personal, File personalBack) {
 		super(phoneNum, password, position, appVersion);
 		this.name = name;
 		this.idNumber = idNumber;
@@ -35,8 +35,8 @@ public class RealnameAuthAction extends RequireLoginAction {
 	}
 
 	@Override
-	protected Map<String, InputStream> fileParams() {
-		Map<String, InputStream> fileParams = Maps.newHashMap();
+	protected Map<String, File> fileParams() {
+		Map<String, File> fileParams = Maps.newHashMap();
 		fileParams.put("personal", personal);
 		fileParams.put("personalBack", personalBack);
 		return fileParams;

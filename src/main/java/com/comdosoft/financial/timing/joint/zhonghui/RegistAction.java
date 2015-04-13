@@ -1,6 +1,6 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -19,11 +19,11 @@ public class RegistAction extends Action {
 	private String registPosition = "460,0,6157,55153";	//注册位置
 	private String appVersion;		//软件版本	
 	private String product;			//软件品牌
-	private InputStream signature;			//签名文件
+	private File signature;			//签名文件
 
 	public RegistAction(String ksnNo, String name, String mobile,
 			String password, String registPosition, String appVersion,
-			String product, InputStream signature) {
+			String product, File signature) {
 		super();
 		this.ksnNo = ksnNo;
 		this.name = name;
@@ -51,8 +51,8 @@ public class RegistAction extends Action {
 	}
 
 	@Override
-	protected Map<String, InputStream> fileParams() {
-		Map<String, InputStream> fileParams = Maps.newHashMap();
+	protected Map<String, File> fileParams() {
+		Map<String, File> fileParams = Maps.newHashMap();
 		fileParams.put("signature", signature);
 		return fileParams;
 	}

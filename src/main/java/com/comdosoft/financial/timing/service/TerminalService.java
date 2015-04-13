@@ -1,5 +1,7 @@
 package com.comdosoft.financial.timing.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
 
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
@@ -87,10 +90,20 @@ public class TerminalService {
 		return terminalTradeTypeInfoMapper.selectTerminalTradeTypeInfos(terminalId);
 	}
 	
-	public InputStream path2InputStream(String path){
+	public File path2File(String path){
+		UrlResource ur = null;
+		File file = null;
 		try {
-			UrlResource ur = new UrlResource(fileHttpRoot+path);
-			return ur.getInputStream();
+			ur = new UrlResource(fileHttpRoot+path);
+			file = File.createTempFile("image", ur.getFilename());
+		} catch (IOException e1) {
+			LOG.error("",e1);
+			return null;
+		}
+		try (InputStream is = ur.getInputStream();
+			FileOutputStream fos = new FileOutputStream(file)){
+			StreamUtils.copy(is, fos);
+			return file;
 		} catch (IOException e) {
 			LOG.error("",e);
 		}

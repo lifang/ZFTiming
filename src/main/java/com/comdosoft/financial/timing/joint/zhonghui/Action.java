@@ -1,6 +1,7 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -122,7 +123,7 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 		return null;
 	}
 
-	protected Map<String, InputStream> fileParams() {
+	protected Map<String, File> fileParams() {
 		return null;
 	}
 	

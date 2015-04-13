@@ -1,7 +1,7 @@
 package com.comdosoft.financial.timing.utils;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class HttpUtils {
 	}
 	
 	public static <T> T post(String url,Map<String,String> headers,
-			Map<String,String> params,Map<String,InputStream> fileParams,
+			Map<String,String> params,Map<String,File> fileParams,
 			ResponseHandler<T> handler) throws IOException{
 		return post(url,headers,params,fileParams,null,handler);
 	}
@@ -85,7 +85,7 @@ public class HttpUtils {
 	 * @throws IOException
 	 */
 	public static <T> T post(String url,Map<String,String> headers,
-			Map<String,String> params,Map<String,InputStream> fileParams,
+			Map<String,String> params,Map<String,File> fileParams,
 			HttpContext context,ResponseHandler<T> handler) throws IOException{
 		RequestBuilder builder = RequestBuilder.post();
 		builder.setUri(url);
@@ -114,7 +114,7 @@ public class HttpUtils {
 	
 	//创建request
 	private static HttpUriRequest request(RequestBuilder builder,
-			Map<String,String> headers,Map<String,String> params,Map<String,InputStream> fileParams) {
+			Map<String,String> headers,Map<String,String> params,Map<String,File> fileParams) {
 		//添加head
 		if(!CollectionUtils.isEmpty(headers)){
 			headers.forEach((k,v)->{
@@ -141,7 +141,7 @@ public class HttpUtils {
 	}
 	
 	private static HttpUriRequest requestPost(RequestBuilder builder,
-			Map<String,String> params, Map<String,InputStream> fileParams) {
+			Map<String,String> params, Map<String,File> fileParams) {
 		HttpEntity entity = null;
 		//是否需要上传文件
 		if(CollectionUtils.isEmpty(fileParams)){

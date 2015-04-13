@@ -1,6 +1,6 @@
 package com.comdosoft.financial.timing.joint.zhonghui;
 
-import java.io.InputStream;
+import java.io.File;
 import java.util.Map;
 
 import com.google.common.collect.Maps;
@@ -12,17 +12,17 @@ import com.google.common.collect.Maps;
  */
 public class SignAuthAction extends RequireLoginAction {
 	
-	private InputStream signature;
+	private File signature;
 
 	public SignAuthAction(String phoneNum, String password,
-			String position, String appVersion, InputStream signature) {
+			String position, String appVersion, File signature) {
 		super(phoneNum, password, position, appVersion);
 		this.signature = signature;
 	}
 
 	@Override
-	protected Map<String, InputStream> fileParams() {
-		Map<String, InputStream> fileParams = Maps.newHashMap();
+	protected Map<String, File> fileParams() {
+		Map<String, File> fileParams = Maps.newHashMap();
 		fileParams.put("signature", signature);
 		return fileParams;
 	}
