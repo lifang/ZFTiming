@@ -174,7 +174,7 @@ public class ActionManager implements JointManager{
 		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
 		LOG.info("opening apply id:{},status:{},activate status:{}",oa.getId(),oa.getStatus(),oa.getActivateStatus());
 		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE
-				|| oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
+				&& oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
 			return;
 		}
 		
