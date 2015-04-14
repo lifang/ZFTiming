@@ -18,6 +18,7 @@ import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
@@ -229,8 +230,8 @@ public class ActionManager implements JointManager{
 				null, appVersion,
 				oa.getMerchant().getLegalPersonName(),
 				oa.getMerchant().getLegalPersonCardId(),
-				terminalService.path2File(oa.getMerchant().getCardIdFrontPhotoPath()),
-				terminalService.path2File(oa.getMerchant().getCardIdBackPhotoPath()));
+				picMap.get("personal"),
+				picMap.get("personalBack"));
 		Result raar = (Result)acts(raa);
 		LOG.info("apply [{}] real name auth result... code:{},msg:{}",
 				oa.getId(),raar.getRespCode(),raar.getRespMsg());
@@ -290,6 +291,73 @@ public class ActionManager implements JointManager{
 		terminalService.updateOpeningApply(oa);
 		
 		RequireLoginAction.clearLoginInfo(terminal.getAccount());
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#modifyPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService, java.lang.String)
+	 */
+	@Override
+	public void modifyPwd(Terminal terminal, TerminalService terminalService,
+			String newPwd) throws JointException {
+		PwdChangeAction pca = new PwdChangeAction(terminal.getAccount(), terminal.getPassword(),
+				null, getAppVersion(), newPwd);
+		Result pcar = (Result)acts(pca);
+		if(!pcar.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+pcar.getMsg()+"]");
+		}
+		terminal.setPassword(newPwd);
+		terminalService.updateTerminal(terminal);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetPwd(Terminal terminal, TerminalService terminalService) throws JointException {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		if(oa == null) {
+			throw new JointException("未查询到终端的opening apply.");
+		}
+		PwdResetAction pra = new PwdResetAction(oa.getAccountBankNum(), terminal.getSerialNum(),
+				oa.getPhone(), product, appVersion, false);
+		PwdResetAction.ResetPwdResult result = (PwdResetAction.ResetPwdResult)acts(pra);
+		if(!result.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+result.getMsg()+"]");
+		}
+		terminal.setPassword(result.getMsg());
+		terminalService.updateTerminal(terminal);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetDevice(Terminal terminal, TerminalService terminalService)
+			throws JointException {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		if(oa == null) {
+			throw new JointException("未查询到终端的opening apply.");
+		}
+		DeviceResetAction dra = new DeviceResetAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion, oa.getCardId(), terminal.getSerialNum());
+		DeviceResetAction.DeviceResetResult drr = (DeviceResetAction.DeviceResetResult)acts(dra);
+		if(!drr.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+drr.getMsg()+"]");
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#replaceDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void replaceDevice(Terminal terminal, TerminalService terminalService)
+			throws JointException {
+		DeviceReplaceAction dra = new DeviceReplaceAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion, terminal.getSerialNum(), getProduct());
+		DeviceReplaceAction.ReplaceDeviceResult rdr = (DeviceReplaceAction.ReplaceDeviceResult)acts(dra);
+		if(!rdr.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+rdr.getMsg()+"]");
+		}
 	}
 	
 }

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.comdosoft.financial.timing.domain.Response;
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
@@ -115,5 +116,102 @@ public class RestServiceController {
 			return Response.getSuccess(result);
 		}
 		return Response.getError("同步失败");
+	}
+	
+	/**
+	 * 修改密码
+	 * @param terminalId
+	 * @param payChannelId
+	 * @param pwd
+	 * @param newPwd
+	 * @return
+	 */
+	@RequestMapping(value = "/modify/pwd", method=RequestMethod.POST)
+	public Response modifyPwd(Integer terminalId,Integer payChannelId,String pwd,String newPwd){
+		if(terminalId==null||pwd==null||newPwd==null||payChannelId==null){
+			return Response.getError("参数[terminalId,pwd,newPwd,payChannelId]都不可为空！");
+		}
+		Terminal terminal = terminalService.findById(terminalId);
+		if(terminal == null) {
+			return Response.getError("未查询到终端.");
+		}
+		if(!pwd.equals(terminal.getPassword())){
+			return Response.getError("原密码不正确.");
+		}
+		try {
+			thirdPartyService.modifyPwd(payChannelId, newPwd, terminal);
+		} catch (JointException e) {
+			return Response.getError(e.getMessage());
+		}
+		return Response.getSuccess("密码修改成功.");
+	}
+	
+	/**
+	 * 重置密码
+	 * @param terminalId
+	 * @param payChannelId
+	 * @return
+	 */
+	@RequestMapping(value = "/reset/pwd", method=RequestMethod.POST)
+	public Response resetPwd(Integer terminalId,Integer payChannelId){
+		if(terminalId==null||payChannelId==null){
+			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
+		}
+		Terminal terminal = terminalService.findById(terminalId);
+		if(terminal == null) {
+			return Response.getError("未查询到终端.");
+		}
+		try {
+			thirdPartyService.resetPwd(payChannelId, terminal);
+		} catch (JointException e) {
+			return Response.getError(e.getMessage());
+		}
+		return Response.getSuccess("密码重置成功.");
+	}
+	
+	/**
+	 * 重置终端
+	 * @param terminalId
+	 * @param payChannelId
+	 * @return
+	 */
+	@RequestMapping(value = "/reset/device", method=RequestMethod.POST)
+	public Response resetDevice(Integer terminalId,Integer payChannelId){
+		if(terminalId==null||payChannelId==null){
+			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
+		}
+		Terminal terminal = terminalService.findById(terminalId);
+		if(terminal == null) {
+			return Response.getError("未查询到终端.");
+		}
+		try {
+			thirdPartyService.resetDevice(payChannelId, terminal);
+		} catch (JointException e) {
+			return Response.getError(e.getMessage());
+		}
+		return Response.getSuccess("终端重置成功.");
+	}
+	
+	/**
+	 * 替换终端
+	 * @param terminalId
+	 * @param payChannelId
+	 * @return
+	 */
+	@RequestMapping(value = "/replace/device", method=RequestMethod.POST)
+	public Response replaceDevice(Integer terminalId,Integer payChannelId){
+		if(terminalId==null||payChannelId==null){
+			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
+		}
+		Terminal terminal = terminalService.findById(terminalId);
+		if(terminal == null) {
+			return Response.getError("未查询到终端.");
+		}
+		try {
+			thirdPartyService.replaceDevice(payChannelId, terminal);
+		} catch (JointException e) {
+			return Response.getError(e.getMessage());
+		}
+		return Response.getSuccess("终端替换成功.");
 	}
 }

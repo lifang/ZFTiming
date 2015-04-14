@@ -17,6 +17,7 @@ import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
@@ -183,7 +184,6 @@ public class ActionManager implements JointManager {
 				|| oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
 			return;
 		}
-		String merchantId = null;
 		if(oa.getActivateStatus() != OpeningApplie.ACTIVATE_STATUS_REGISTED) {
 			//账户申请
 			AccountRegistRequest arreq = new AccountRegistRequest();
@@ -204,7 +204,8 @@ public class ActionManager implements JointManager {
 			AccountRegistRequest.AccountRegistResponse arrsp = (AccountRegistRequest.AccountRegistResponse)acts(arreq);
 			LOG.info("apply [{}] regist response code:{},desc:{}",oa.getId(),arrsp.getRespCode(),arrsp.getRespDesc());
 			if(arrsp.isSuccess()){
-				merchantId = arrsp.getMerchantId();
+				terminal.setMerchantNum(arrsp.getMerchantId());
+				terminalService.updateTerminal(terminal);
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
 				terminalService.updateOpeningApply(oa);
 			}else{
@@ -220,7 +221,7 @@ public class ActionManager implements JointManager {
 				LOG.info("apply [{}] start image upload... type:{},value:{}",oa.getId(),
 						infos.get(info.getTargetId()).getQueryMark(),info.getValue());
 				PicUploadRequest pureq = new PicUploadRequest();
-				pureq.setMerchantId(merchantId);
+				pureq.setMerchantId(terminal.getMerchantNum());
 				pureq.setPic(terminalService.path2File((info.getValue())));
 				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
 				PicUploadRequest.PicUploadResponse puresp = (PicUploadRequest.PicUploadResponse)acts(pureq);
@@ -233,5 +234,55 @@ public class ActionManager implements JointManager {
 		}
 		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
 		terminalService.updateOpeningApply(oa);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#modifyPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService, java.lang.String)
+	 */
+	@Override
+	public void modifyPwd(Terminal terminal, TerminalService terminalService,
+			String newPwd) throws JointException {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		FindPwdRequest fpr = new FindPwdRequest();
+		fpr.setMerchantId(terminal.getMerchantNum());
+		fpr.setTerminalId(terminal.getSerialNum());
+		fpr.setPhoneNum(terminal.getAccount());
+		fpr.setPwd(newPwd);
+		fpr.setSettleAccountName(oa.getAccountBankName());
+		fpr.setSetttleAccountNo(oa.getAccountBankNum());
+		fpr.setPhoneNum(oa.getPhone());
+		FindPwdRequest.FindPwdResponse fpresp = (FindPwdRequest.FindPwdResponse)acts(fpr);
+		if(!fpresp.isSuccess()){
+			throw new JointException("第三方调用失败,code:["+fpresp.getRespCode()+"]"
+					+ ",desc:["+fpresp.getRespDesc()+"]");
+		}
+		terminal.setPassword(newPwd);
+		terminalService.updateTerminal(terminal);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetPwd(Terminal terminal, TerminalService terminalService) throws JointException {
+		throw new JointException("翰鑫不支持此接口.");
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetDevice(Terminal terminal, TerminalService terminalService)
+			throws JointException {
+		throw new JointException("翰鑫不支持此接口.");
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#replaceDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void replaceDevice(Terminal terminal, TerminalService terminalService)
+			throws JointException {
+		throw new JointException("翰鑫不支持此接口.");
 	}
 }

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.mapper.zhangfu.OpeningApplieMapper;
 import com.comdosoft.financial.timing.utils.page.Page;
@@ -31,6 +32,27 @@ public class ThirdPartyService {
 	private TerminalService terminalService;
 	@Autowired
 	private OpeningApplieMapper openingApplieMapper;
+	
+	public void replaceDevice(Integer payChannelId,Terminal terminal) throws JointException{
+		JointManager manager = switchManager(payChannelId);
+		manager.replaceDevice(terminal, terminalService);
+	}
+	
+	public void resetDevice(Integer payChannelId,Terminal terminal) throws JointException{
+		JointManager manager = switchManager(payChannelId);
+		manager.resetDevice(terminal, terminalService);
+	}
+	
+	public void resetPwd(Integer payChannelId,Terminal terminal) throws JointException{
+		JointManager manager = switchManager(payChannelId);
+		manager.resetPwd(terminal, terminalService);
+	}
+	
+	public void modifyPwd(Integer payChannelId,String newPwd,
+			Terminal terminal) throws JointException{
+		JointManager manager = switchManager(payChannelId);
+		manager.modifyPwd(terminal, terminalService, newPwd);
+	}
 
 	public String syncStatus(Integer payChannelId,String account,String passwd,Terminal terminal){
 		JointManager manager = switchManager(payChannelId);
