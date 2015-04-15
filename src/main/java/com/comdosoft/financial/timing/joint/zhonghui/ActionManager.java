@@ -324,7 +324,7 @@ public class ActionManager implements JointManager{
 		if(!result.isSuccess()){
 			throw new JointException("第三方调用失败,原因为["+result.getMsg()+"]");
 		}
-		terminal.setPassword(result.getMsg());
+		terminal.setPassword("000000");
 		terminalService.updateTerminal(terminal);
 	}
 
