@@ -72,11 +72,10 @@ public class ActionManager implements JointManager {
 	}
 
 	@Override
-	public String syncStatus(String account, String passwd,
-			Terminal terminal, TerminalService terminalService) {
+	public String syncStatus(Terminal terminal,TerminalService terminalService){
 		LoginRequest request = new LoginRequest();
-		request.setAccountName(account);
-		request.setAccountPwd(passwd);
+		request.setAccountName(terminal.getAccount());
+		request.setAccountPwd(terminal.getPassword());
 		request.setTerminalId(terminal.getSerialNum());
 		LoginRequest.LoginResponse response = (LoginRequest.LoginResponse)acts(request);
 		if(response==null) {
@@ -281,7 +280,7 @@ public class ActionManager implements JointManager {
 	 * @see com.comdosoft.financial.timing.joint.JointManager#replaceDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
 	 */
 	@Override
-	public void replaceDevice(Terminal terminal, TerminalService terminalService)
+	public void replaceDevice(Terminal terminal, String newSerialNum, TerminalService terminalService)
 			throws JointException {
 		throw new JointException("翰鑫不支持此接口.");
 	}

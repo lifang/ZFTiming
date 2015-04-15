@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -68,6 +69,34 @@ public class TerminalService {
 	
 	public void updateTerminal(Terminal terminal) {
 		terminalMapper.updateByPrimaryKey(terminal);
+	}
+	
+	public void createNewTerminal(Terminal terminal,String newSerialNum) {
+		//创建新的终端
+		Terminal newTerminal = new Terminal();
+		BeanUtils.copyProperties(terminal, newTerminal);
+		newTerminal.setId(null);
+		newTerminal.setSerialNum(newSerialNum);
+		terminalMapper.insert(newTerminal);
+		//把原有终端停用
+		terminal.setStatus(Terminal.STATUS_STOPED);
+		updateTerminal(terminal);
+		//创建新的opening apply
+		OpeningApplie oa = findOpeningAppylByTerminalId(terminal.getId());
+		OpeningApplie newOa = new OpeningApplie();
+		BeanUtils.copyProperties(oa, newOa);
+		newOa.setId(null);
+		newOa.setTerminalId(newTerminal.getId());
+		openingApplieMapper.insert(newOa);
+		//创建新的terminalTradeTypeInfo
+		List<TerminalTradeTypeInfo> infos = findTerminalTradeTypeInfos(terminal.getId());
+		for(TerminalTradeTypeInfo info : infos) {
+			TerminalTradeTypeInfo newInfo = new TerminalTradeTypeInfo();
+			BeanUtils.copyProperties(info, newInfo);
+			newInfo.setId(null);
+			newInfo.setTerminalId(newTerminal.getId());
+			terminalTradeTypeInfoMapper.insert(newInfo);
+		}
 	}
 	
 	//更新TerminalTradeTypeInfo状态

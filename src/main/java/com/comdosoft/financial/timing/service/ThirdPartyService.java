@@ -33,9 +33,10 @@ public class ThirdPartyService {
 	@Autowired
 	private OpeningApplieMapper openingApplieMapper;
 	
-	public void replaceDevice(Integer payChannelId,Terminal terminal) throws JointException{
-		JointManager manager = switchManager(payChannelId);
-		manager.replaceDevice(terminal, terminalService);
+	public void replaceDevice(Integer terminalId,String newSerialNum) throws ServiceException,JointException{
+		Terminal terminal = checkTerminal(terminalId);
+		JointManager manager = switchManager(terminal.getPayChannelId());
+		manager.replaceDevice(terminal, newSerialNum, terminalService);
 	}
 	
 	public void resetDevice(Integer payChannelId,Terminal terminal) throws JointException{
@@ -54,9 +55,10 @@ public class ThirdPartyService {
 		manager.modifyPwd(terminal, terminalService, newPwd);
 	}
 
-	public String syncStatus(Integer payChannelId,String account,String passwd,Terminal terminal){
-		JointManager manager = switchManager(payChannelId);
-		String status = manager.syncStatus(account, passwd, terminal, terminalService);
+	public String syncStatus(Integer terminalId) throws ServiceException{
+		Terminal terminal = checkTerminal(terminalId);
+		JointManager manager = switchManager(terminal.getPayChannelId());
+		String status = manager.syncStatus(terminal, terminalService);
 		return status;
 	}
 	
@@ -95,5 +97,16 @@ public class ThirdPartyService {
 	
 	private JointManager switchManager(Integer payChannelId){
 		return managers.get(payChannelId.toString());
+	}
+	
+	private Terminal checkTerminal(Integer terminalId) throws ServiceException {
+		Terminal terminal = terminalService.findById(terminalId);
+		if(terminal == null) {
+			throw new ServiceException("未查询到终端["+terminalId+"].");
+		}
+		if(terminal.getPayChannelId() == null) {
+			throw new ServiceException("终端["+terminalId+"]不存在payChannelId");
+		}
+		return terminal;
 	}
 }

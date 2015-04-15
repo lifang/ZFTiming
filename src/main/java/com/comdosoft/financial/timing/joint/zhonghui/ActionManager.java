@@ -79,9 +79,9 @@ public class ActionManager implements JointManager{
 	 * @see com.comdosoft.financial.timing.joint.JointManager#syncStatus(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String syncStatus(String account, String passwd,
-			Terminal terminal,TerminalService terminalService) {
-		LoginAction login = new LoginAction(account, passwd, null, appVersion, product);
+	public String syncStatus(Terminal terminal,TerminalService terminalService) {
+		LoginAction login = new LoginAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion, product);
 		LoginAction.LoginResult result = (LoginAction.LoginResult)acts(login);
 		if(result == null) {
 			return null;
@@ -350,14 +350,16 @@ public class ActionManager implements JointManager{
 	 * @see com.comdosoft.financial.timing.joint.JointManager#replaceDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
 	 */
 	@Override
-	public void replaceDevice(Terminal terminal, TerminalService terminalService)
+	public void replaceDevice(Terminal terminal, String newSerialNum, TerminalService terminalService)
 			throws JointException {
+		String model = (getAppVersion().split("\\."))[1];
 		DeviceReplaceAction dra = new DeviceReplaceAction(terminal.getAccount(), terminal.getPassword(),
-				null, appVersion, terminal.getSerialNum(), getProduct());
+				null, getAppVersion(), newSerialNum, model);
 		DeviceReplaceAction.ReplaceDeviceResult rdr = (DeviceReplaceAction.ReplaceDeviceResult)acts(dra);
 		if(!rdr.isSuccess()){
 			throw new JointException("第三方调用失败,原因为["+rdr.getMsg()+"]");
 		}
+		//创建新终端
+		terminalService.createNewTerminal(terminal, newSerialNum);
 	}
-	
 }

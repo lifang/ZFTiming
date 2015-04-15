@@ -14,6 +14,7 @@ import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
+import com.comdosoft.financial.timing.service.ServiceException;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
 import com.comdosoft.financial.timing.utils.page.Page;
@@ -103,17 +104,17 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value="/status/sync",method=RequestMethod.POST)
-	public Response syncStatus(String account,String password,String serialNum,Integer payChannelId){
-		if(account==null||password==null||serialNum==null||payChannelId==null){
-			return Response.getError("参数[account,password,serialNum,payChannelId]都不可为空！");
+	public Response syncStatus(Integer terminalId){
+		if(terminalId==null){
+			return Response.getError("参数[terminalId]不可为空！");
 		}
-		Terminal terminal = terminalService.findBySerial(serialNum);
-		if(terminal == null) {
-			return Response.getError("未查询到终端.");
-		}
-		String result = thirdPartyService.syncStatus(payChannelId,account,password,terminal);
-		if(StringUtils.hasLength(result)){
-			return Response.getSuccess(result);
+		try {
+			String result = thirdPartyService.syncStatus(terminalId);
+			if(StringUtils.hasLength(result)){
+				return Response.getSuccess(result);
+			}
+		} catch (ServiceException e) {
+			return Response.getError(e.getMessage());
 		}
 		return Response.getError("同步失败");
 	}
@@ -199,17 +200,13 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/replace/device", method=RequestMethod.POST)
-	public Response replaceDevice(Integer terminalId,Integer payChannelId){
-		if(terminalId==null||payChannelId==null){
-			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
-		}
-		Terminal terminal = terminalService.findById(terminalId);
-		if(terminal == null) {
-			return Response.getError("未查询到终端.");
+	public Response replaceDevice(Integer terminalId,String newSerialNum){
+		if(terminalId==null||newSerialNum==null){
+			return Response.getError("参数[terminalId,newSerialNum]都不可为空！");
 		}
 		try {
-			thirdPartyService.replaceDevice(payChannelId, terminal);
-		} catch (JointException e) {
+			thirdPartyService.replaceDevice(terminalId, newSerialNum);
+		} catch (JointException|ServiceException e) {
 			return Response.getError(e.getMessage());
 		}
 		return Response.getSuccess("终端替换成功.");
