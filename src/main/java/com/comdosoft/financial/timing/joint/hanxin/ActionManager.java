@@ -201,10 +201,10 @@ public class ActionManager implements JointManager {
 			arreq.setSettleAgency(oa.getAccountBankCode());
 			arreq.setAccountPwd("123456");
 			LOG.info("apply [{}] start regist...",oa.getId());
-			AccountRegistRequest.AccountRegistResponse arrsp = (AccountRegistRequest.AccountRegistResponse)acts(arreq);
+			ResponseBean arrsp = (ResponseBean)acts(arreq);
 			LOG.info("apply [{}] regist response code:{},desc:{}",oa.getId(),arrsp.getRespCode(),arrsp.getRespDesc());
 			if(arrsp.isSuccess()){
-				terminal.setMerchantNum(arrsp.getMerchantId());
+				terminal.setMerchantNum(((AccountRegistRequest.AccountRegistResponse) arrsp).getMerchantId());
 				terminalService.updateTerminal(terminal);
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
 				terminalService.updateOpeningApply(oa);

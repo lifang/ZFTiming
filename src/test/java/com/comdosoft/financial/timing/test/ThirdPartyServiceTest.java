@@ -32,7 +32,7 @@ public class ThirdPartyServiceTest {
 	
 	@Test
 	public void testSubmitOpeningApply() throws Exception{
-//		thirdPartyService.submitOpeningApply(125, 3);
+//		thirdPartyService.submitOpeningApply(210, 1);
 //		Thread.sleep(10000000000l);
 	}
 	
