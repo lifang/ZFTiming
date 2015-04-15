@@ -33,7 +33,7 @@ public class SyncStatus {
 	@Autowired
 	private TerminalService terminalService;
 	
-	@Scheduled(fixedDelay=6000)
+	@Scheduled(fixedDelay=8*60*60*1000)
 	public void syncOpeningApplyStatus(){
 		LOG.debug("start sync.");
 		List<OpeningApplie> openApplies = null;
