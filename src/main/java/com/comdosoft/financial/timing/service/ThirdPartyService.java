@@ -64,8 +64,12 @@ public class ThirdPartyService {
 	public String syncStatus(Integer terminalId) throws ServiceException{
 		Terminal terminal = checkTerminal(terminalId);
 		JointManager manager = switchManager(terminal.getPayChannelId());
-		String status = manager.syncStatus(terminal, terminalService);
-		return status;
+		return manager.syncStatus(terminal, terminalService);
+	}
+	
+	public void syncFail(OpeningApplie oa) {
+		oa.setStatus(OpeningApplie.STATUS_CHECK_FAIL);
+		openingApplieMapper.updateByPrimaryKey(oa);
 	}
 	
 	public List<OpeningApplie> openingAppliesPage(byte status){
