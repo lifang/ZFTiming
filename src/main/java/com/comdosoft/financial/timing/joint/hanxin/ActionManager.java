@@ -226,14 +226,15 @@ public class ActionManager implements JointManager {
 		List<TerminalOpeningInfo> terminalOpeningInfos = oa.getTerminalOpeningInfos();
 		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
 		for(TerminalOpeningInfo info : terminalOpeningInfos){
+			String mark = infos.get(info.getTargetId()).getQueryMark();
 			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE
-					&& Arrays.binarySearch(image4Upload, infos.get(info.getTargetId()).getQueryMark())>=0){
+					&& Arrays.binarySearch(image4Upload, mark)>=0){
 				LOG.info("apply [{}] start image upload... type:{},value:{}",oa.getId(),
-						infos.get(info.getTargetId()).getQueryMark(),info.getValue());
+						mark,info.getValue());
 				PicUploadRequest pureq = new PicUploadRequest();
 				pureq.setMerchantId(terminal.getMerchantNum());
 				pureq.setPic(terminalService.path2File((info.getValue())));
-				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
+				pureq.setPicType(mark);
 				pureq.setTerminalId(terminal.getSerialNum());
 				if(pureq.getMerchantId()==null){
 					terminalService.recordSubmitFail(oa,"图片上传","-1","商户号不能为null");
