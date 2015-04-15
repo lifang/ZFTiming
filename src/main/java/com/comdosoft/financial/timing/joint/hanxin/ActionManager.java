@@ -1,6 +1,7 @@
 package com.comdosoft.financial.timing.joint.hanxin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,9 @@ public class ActionManager implements JointManager {
 	private HttpClientContext context = HttpClientContext.create();
 	private String url;
 	private String rsaKey;
+	
+	private static final String[] PUBLIC = {"idCard","regNo","occNo","taxNo","card"};//对公
+	private static final String[] PRIVATE = {"idCard","person","card"};//对私
 	
 	@Override
 	public JointResponse acts(JointRequest request) {
@@ -212,18 +216,30 @@ public class ActionManager implements JointManager {
 				return;
 			}
 		}
+		String[] image4Upload = {};
+		if(oa.getTypes() == OpeningApplie.TYPE_PUBLIC){
+			image4Upload = PUBLIC;
+		}else if(oa.getTypes() == OpeningApplie.TYPE_PRIVATE){
+			image4Upload = PRIVATE;
+		}
 		//图片上传
 		List<TerminalOpeningInfo> terminalOpeningInfos = oa.getTerminalOpeningInfos();
 		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
 		for(TerminalOpeningInfo info : terminalOpeningInfos){
-			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE){
+			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE
+					&& Arrays.binarySearch(image4Upload, infos.get(info.getTargetId()).getQueryMark())>=0){
 				LOG.info("apply [{}] start image upload... type:{},value:{}",oa.getId(),
 						infos.get(info.getTargetId()).getQueryMark(),info.getValue());
 				PicUploadRequest pureq = new PicUploadRequest();
 				pureq.setMerchantId(terminal.getMerchantNum());
 				pureq.setPic(terminalService.path2File((info.getValue())));
 				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
-				PicUploadRequest.PicUploadResponse puresp = (PicUploadRequest.PicUploadResponse)acts(pureq);
+				pureq.setTerminalId(terminal.getSerialNum());
+				if(pureq.getMerchantId()==null){
+					terminalService.recordSubmitFail(oa,"图片上传","-1","商户号不能为null");
+					return ;
+				}
+				ResponseBean puresp = (ResponseBean)acts(pureq);
 				LOG.info("apply [{}] image upload response code:{},desc:{}",oa.getId(),puresp.getRespCode(),puresp.getRespDesc());
 				if(!puresp.isSuccess()){
 					terminalService.recordSubmitFail(oa,"图片上传",puresp.getRespCode(),puresp.getRespDesc());

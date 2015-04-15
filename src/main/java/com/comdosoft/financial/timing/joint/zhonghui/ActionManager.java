@@ -107,13 +107,9 @@ public class ActionManager implements JointManager{
 			oa.setStatus(OpeningApplie.STATUS_CHECK_FAIL);
 			terminal.setStatus(Terminal.STATUS_NO_OPEN);
 		}
-		
 		String serialType = result.getSerialType();
-		if(serialType!=null){
-			String[] types = serialType.split("+");
-			terminal.setBaseRate(Integer.parseInt(types[0]));
-			terminal.setTopCharge(Integer.parseInt(types[1]));
-		}
+		//设置终端费率
+		checkTerminalRate(terminal,serialType);
 		terminalService.updateTerminal(terminal);
 		terminalService.updateOpeningApply(oa);
 		return status;
@@ -361,5 +357,16 @@ public class ActionManager implements JointManager{
 		}
 		//创建新终端
 		terminalService.createNewTerminal(terminal, newSerialNum);
+	}
+	
+	//设置终端费率
+	private void checkTerminalRate(Terminal terminal,String serialType){
+		if(serialType!=null && serialType.contains("-")){
+			String[] types = serialType.split("-");
+			terminal.setBaseRate((int)(Float.parseFloat(types[0])*100));
+			terminal.setTopCharge(Integer.parseInt(types[1]));
+		}else {
+			terminal.setBaseRate((int)(Float.parseFloat(serialType)*100));
+		}
 	}
 }
