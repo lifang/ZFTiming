@@ -39,19 +39,25 @@ public class ThirdPartyService {
 		manager.replaceDevice(terminal, newSerialNum, terminalService);
 	}
 	
-	public void resetDevice(Integer payChannelId,Terminal terminal) throws JointException{
-		JointManager manager = switchManager(payChannelId);
+	public void resetDevice(Integer terminalId) throws JointException,ServiceException{
+		Terminal terminal = checkTerminal(terminalId);
+		JointManager manager = switchManager(terminal.getPayChannelId());
 		manager.resetDevice(terminal, terminalService);
 	}
 	
-	public void resetPwd(Integer payChannelId,Terminal terminal) throws JointException{
-		JointManager manager = switchManager(payChannelId);
+	public void resetPwd(Integer terminalId) throws JointException,ServiceException{
+		Terminal terminal = checkTerminal(terminalId);
+		JointManager manager = switchManager(terminal.getPayChannelId());
 		manager.resetPwd(terminal, terminalService);
 	}
 	
-	public void modifyPwd(Integer payChannelId,String newPwd,
-			Terminal terminal) throws JointException{
-		JointManager manager = switchManager(payChannelId);
+	public void modifyPwd(String pwd,String newPwd,
+			Integer terminalId) throws ServiceException,JointException{
+		Terminal terminal = checkTerminal(terminalId);
+		if(!pwd.equals(terminal.getPassword())){
+			throw new ServiceException("原密码不正确.");
+		}
+		JointManager manager = switchManager(terminal.getPayChannelId());
 		manager.modifyPwd(terminal, terminalService, newPwd);
 	}
 
@@ -74,24 +80,24 @@ public class ThirdPartyService {
 		return manager.bankList(keyword, r, serialNum);
 	}
 	
-	public Page<TradeRecord> pullTrades(Integer terminalId,Integer payChannelId,
-			Integer tradeTypeId,Integer page,Integer pageSize){
+	public Page<TradeRecord> pullTrades(Integer terminalId,
+			Integer tradeTypeId,Integer page,Integer pageSize) throws ServiceException{
+		Terminal terminal = checkTerminal(terminalId);
 		if(page == null) {
 			page = 1;
 		}
 		if(pageSize == null) {
 			pageSize = 10;
 		}
-		Terminal terminal = terminalService.findById(terminalId);
-		JointManager manager = switchManager(payChannelId);
+		JointManager manager = switchManager(terminal.getPayChannelId());
 		PageRequest request = new PageRequest(page, pageSize);
 		return manager.pullTrades(terminal, tradeTypeId,request);
 	}
 	
 	@Async
-	public void submitOpeningApply(Integer terminalId,Integer payChannelId){
-		JointManager manager = switchManager(payChannelId);
-		Terminal terminal = terminalService.findById(terminalId);
+	public void submitOpeningApply(Integer terminalId) throws ServiceException{
+		Terminal terminal = checkTerminal(terminalId);
+		JointManager manager = switchManager(terminal.getPayChannelId());
 		manager.submitOpeningApply(terminal, terminalService);
 	}
 	

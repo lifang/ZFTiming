@@ -11,11 +11,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.comdosoft.financial.timing.domain.Response;
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
-import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.service.ServiceException;
-import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
 import com.comdosoft.financial.timing.utils.page.Page;
 
@@ -31,8 +29,6 @@ public class RestServiceController {
 	
 	@Autowired
 	private ThirdPartyService thirdPartyService;
-	@Autowired
-	private TerminalService terminalService;
 	
 	/**
 	 * 提交申请资料
@@ -41,11 +37,15 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value="/apply/open",method=RequestMethod.POST)
-	public Response applyOpen(Integer terminalId,Integer payChannelId){
-		if(terminalId==null||payChannelId==null){
-			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
+	public Response applyOpen(Integer terminalId){
+		if(terminalId==null){
+			return Response.getError("参数[terminalId]不可为空！");
 		}
-		thirdPartyService.submitOpeningApply(terminalId, payChannelId);
+		try {
+			thirdPartyService.submitOpeningApply(terminalId);
+		} catch (ServiceException e) {
+			return Response.getError(e.getMessage());
+		}
 		return Response.getSuccess("请求处理中...");
 	}
 
@@ -82,13 +82,18 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value="/orders/query",method=RequestMethod.POST)
-	public Response queryOrders(Integer terminalId,Integer payChannelId,
+	public Response queryOrders(Integer terminalId,
 			Integer tradeTypeId,Integer page,Integer pageSize){
-		if(payChannelId==null||terminalId==null||tradeTypeId==null){
-			return Response.getError("参数[tradeTypeId,terminalId,payChannelId]都不可为空！");
+		if(terminalId==null||tradeTypeId==null){
+			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
 		}
-		Page<TradeRecord> records = thirdPartyService.pullTrades(
-				terminalId, payChannelId, tradeTypeId,page, pageSize);
+		Page<TradeRecord> records = null;
+		try {
+			records = thirdPartyService.pullTrades(
+					terminalId, tradeTypeId,page, pageSize);
+		} catch (ServiceException e) {
+			return Response.getError(e.getMessage());
+		}
 		if(records == null) {
 			return Response.getError("第三方交易流水查询失败");
 		}
@@ -128,20 +133,13 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/modify/pwd", method=RequestMethod.POST)
-	public Response modifyPwd(Integer terminalId,Integer payChannelId,String pwd,String newPwd){
-		if(terminalId==null||pwd==null||newPwd==null||payChannelId==null){
-			return Response.getError("参数[terminalId,pwd,newPwd,payChannelId]都不可为空！");
-		}
-		Terminal terminal = terminalService.findById(terminalId);
-		if(terminal == null) {
-			return Response.getError("未查询到终端.");
-		}
-		if(!pwd.equals(terminal.getPassword())){
-			return Response.getError("原密码不正确.");
+	public Response modifyPwd(Integer terminalId,String pwd,String newPwd){
+		if(terminalId==null||pwd==null||newPwd==null){
+			return Response.getError("参数[terminalId,newPwd]都不可为空！");
 		}
 		try {
-			thirdPartyService.modifyPwd(payChannelId, newPwd, terminal);
-		} catch (JointException e) {
+			thirdPartyService.modifyPwd(pwd, newPwd, terminalId);
+		} catch (JointException|ServiceException e) {
 			return Response.getError(e.getMessage());
 		}
 		return Response.getSuccess("密码修改成功.");
@@ -154,17 +152,13 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/reset/pwd", method=RequestMethod.POST)
-	public Response resetPwd(Integer terminalId,Integer payChannelId){
-		if(terminalId==null||payChannelId==null){
-			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
-		}
-		Terminal terminal = terminalService.findById(terminalId);
-		if(terminal == null) {
-			return Response.getError("未查询到终端.");
+	public Response resetPwd(Integer terminalId){
+		if(terminalId==null){
+			return Response.getError("参数[terminalId]不可为空！");
 		}
 		try {
-			thirdPartyService.resetPwd(payChannelId, terminal);
-		} catch (JointException e) {
+			thirdPartyService.resetPwd(terminalId);
+		} catch (JointException|ServiceException e) {
 			return Response.getError(e.getMessage());
 		}
 		return Response.getSuccess("密码重置成功.");
@@ -177,17 +171,13 @@ public class RestServiceController {
 	 * @return
 	 */
 	@RequestMapping(value = "/reset/device", method=RequestMethod.POST)
-	public Response resetDevice(Integer terminalId,Integer payChannelId){
-		if(terminalId==null||payChannelId==null){
-			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
-		}
-		Terminal terminal = terminalService.findById(terminalId);
-		if(terminal == null) {
-			return Response.getError("未查询到终端.");
+	public Response resetDevice(Integer terminalId){
+		if(terminalId==null){
+			return Response.getError("参数[terminalId]不可为空！");
 		}
 		try {
-			thirdPartyService.resetDevice(payChannelId, terminal);
-		} catch (JointException e) {
+			thirdPartyService.resetDevice(terminalId);
+		} catch (JointException|ServiceException e) {
 			return Response.getError(e.getMessage());
 		}
 		return Response.getSuccess("终端重置成功.");
