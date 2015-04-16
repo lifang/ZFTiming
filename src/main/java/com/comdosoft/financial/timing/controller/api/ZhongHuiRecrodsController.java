@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 import com.comdosoft.financial.timing.domain.Response;
 import com.comdosoft.financial.timing.domain.ZhangFuRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
+import com.comdosoft.financial.timing.domain.zhangfu.OperateRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.service.OperateRecordService;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.TradeService;
 
@@ -29,6 +31,8 @@ public class ZhongHuiRecrodsController {
 	private TradeService tradeService;
 	@Autowired
 	private TerminalService terminalService;
+	@Autowired
+	private OperateRecordService operateRecordService;
 	
 	//导入交易类型流水
 	@RequestMapping(value="/orders/import",method=RequestMethod.POST)
@@ -42,6 +46,7 @@ public class ZhongHuiRecrodsController {
 				tradeService.importTradeRecords(file);
 				return "-1";
 			} catch (Exception e) {
+				operateRecordService.saveOperateRecord(OperateRecord.TYPE_OTHER, "导入交易类型流水错误，"+e.getMessage());
 				LOG.error("import trade record error...",e);
 			}
 		}

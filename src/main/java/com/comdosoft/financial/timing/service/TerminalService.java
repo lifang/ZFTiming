@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -29,7 +28,6 @@ import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
 import com.comdosoft.financial.timing.mapper.zhangfu.DictionaryOpenPrivateInfoMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.OpeningApplieMapper;
-import com.comdosoft.financial.timing.mapper.zhangfu.OperateRecordMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.TerminalMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.TerminalTradeTypeInfoMapper;
 
@@ -45,7 +43,7 @@ public class TerminalService {
 	@Autowired
 	private TerminalTradeTypeInfoMapper terminalTradeTypeInfoMapper;
 	@Autowired
-	private OperateRecordMapper operateRecordMapper;
+	private OperateRecordService operateRecordService;
 	@Autowired
 	private DictionaryOpenPrivateInfoMapper dictionaryOpenPrivateInfoMapper;
 	@Value("${file.http.domain}")
@@ -167,7 +165,7 @@ public class TerminalService {
 		terminalMapper.updateByPrimaryKey(terminal);
 		
 		//将这次的传递过来的参数拼接存入到operate_records中
-		saveOperateRecord(
+		operateRecordService.saveOperateRecord(
 				OperateRecord.TYPE_TRADE_RECORD,
 				terminal.getId(),
 				OperateRecord.TARGET_TYPE_TERMINAL,
@@ -178,21 +176,10 @@ public class TerminalService {
 		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_FAIL);
 		updateOpeningApply(oa);
 		//失败内容记录到operate_records
-		saveOperateRecord(
+		operateRecordService.saveOperateRecord(
 				OperateRecord.TYPE_OPENING_APPLY,
 				oa.getId(),
 				OperateRecord.TARGET_TYPE_OPENING_APPYL,
 				MessageFormat.format("[{0}] code:{1},msg:{2}", type, code,msg));
-	}
-	
-	public void saveOperateRecord(Integer type,Integer targetId,Byte targetType,String content) {
-		OperateRecord or = new OperateRecord();
-		or.setCreatedAt(new Date());
-		or.setUpdatedAt(new Date());
-		or.setTypes(type);
-		or.setOperateTargetId(targetId);
-		or.setOperateTargetType(targetType);
-		or.setContent(content);
-		operateRecordMapper.insert(or);
 	}
 }
