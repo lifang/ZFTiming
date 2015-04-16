@@ -70,7 +70,7 @@ public class RestServiceController {
 			pageSize = 10;
 		}
 		Page<JointManager.Bank> banks = thirdPartyService.bankList(keyword,
-				pageSize, pageSize, payChannelId, serialNum);
+				pageSize, page, payChannelId, serialNum);
 		return Response.getSuccess(banks);
 	}
 
