@@ -225,6 +225,7 @@ public class TradeService {
 		tradeRecord.setPayChannelId(terminal.getPayChannelId());
 		tradeRecord.setCustomerId(terminal.getCustomerId());
 		tradeRecord.setPayFromAccount(cardNo);
+		tradeRecord.setCityId(terminal.getCustomer().getCityId());
 		tradeRecordMapper.insert(tradeRecord);
 		TradeConsumeRecord tcr = new TradeConsumeRecord();
 		tcr.setId(tradeRecord.getId());

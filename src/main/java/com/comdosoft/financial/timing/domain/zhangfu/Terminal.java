@@ -543,7 +543,7 @@ public class Terminal {
     
     
     private DictionaryBillingCycle billingCycle;
-
+    private Customer customer;
 
 	public DictionaryBillingCycle getBillingCycle() {
 		return billingCycle;
@@ -551,6 +551,14 @@ public class Terminal {
 
 	public void setBillingCycle(DictionaryBillingCycle billingCycle) {
 		this.billingCycle = billingCycle;
+	}
+
+	public Customer getCustomer() {
+		return customer;
+	}
+
+	public void setCustomer(Customer customer) {
+		this.customer = customer;
 	}
 
 }
