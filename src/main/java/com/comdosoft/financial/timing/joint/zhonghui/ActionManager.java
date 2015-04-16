@@ -184,6 +184,10 @@ public class ActionManager implements JointManager{
 			if(ar.isSuccess()) {
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_NO_REGISTED);
 				terminalService.updateOpeningApply(oa);
+				String serialType = ar.getSerialType();
+				//设置终端费率
+				checkTerminalRate(terminal,serialType);
+				terminalService.updateTerminal(terminal);
 			}else {
 				terminalService.recordSubmitFail(oa,"刷卡器激活",ar.getRespCode(),ar.getRespMsg());
 				return;
