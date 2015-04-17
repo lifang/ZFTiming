@@ -20,6 +20,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
 import com.comdosoft.financial.timing.utils.HttpUtils;
@@ -37,17 +38,21 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 		String url = manager.getBaseUrl() + url();
 		LOG.debug("url:{}",url);
 		Result result = null;
-		//检查状态是否还需要请求
-		if(checkStatus()){
-			return Result.SUCCESS;
-		}
-		if(getMethod() == Method.POST) {
-			result = HttpUtils.post(url, headers(),
-					params(), fileParams(), this);
-		}
-		if(getMethod() == Method.GET) {
-			result = HttpUtils.get(url, headers(),
-					params(), this);
+		try {
+			//检查状态是否还需要请求
+			if(checkStatus()){
+				return Result.success("已成功，无需再次调用");
+			}
+			if(getMethod() == Method.POST) {
+				result = HttpUtils.post(url, headers(),
+						params(), fileParams(), this);
+			}
+			if(getMethod() == Method.GET) {
+				result = HttpUtils.get(url, headers(),
+						params(), this);
+			}
+		} catch (JointException e) {
+			return Result.fail(e.getMessage());
 		}
 		return result;
 	}
@@ -56,7 +61,7 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 	 * 检查状态，是否还需要发送请求
 	 * @return
 	 */
-	protected boolean checkStatus(){
+	protected boolean checkStatus() throws JointException{
 		return false;
 	}
 	
@@ -119,7 +124,7 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 		return createParams();
 	}
 
-	protected Map<String, String> headers() {
+	protected Map<String, String> headers() throws JointException {
 		return null;
 	}
 
