@@ -14,6 +14,7 @@ import org.springframework.util.StringUtils;
 
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
+import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
@@ -27,6 +28,7 @@ import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.HttpUtils;
 import com.comdosoft.financial.timing.utils.page.Page;
 import com.comdosoft.financial.timing.utils.page.PageRequest;
+import com.google.common.collect.HashBiMap;
 
 public class ActionManager implements JointManager {
 	
@@ -38,6 +40,17 @@ public class ActionManager implements JointManager {
 	
 	private static final String[] PUBLIC = {"idCard","regNo","occNo","taxNo","card"};//对公
 	private static final String[] PRIVATE = {"idCard","person","card"};//对私
+	
+	private static final HashBiMap<String,Integer> mapping = HashBiMap.create();
+	
+	static {
+		mapping.put("100000", DictionaryTradeType.ID_TRADE);
+		mapping.put("100004", DictionaryTradeType.ID_PHONE_RECHARGE);
+		mapping.put("100002", DictionaryTradeType.ID_REPAY);
+		mapping.put("100003", DictionaryTradeType.ID_TRANSFER);
+		mapping.put("100001", -1);
+		mapping.put("200000", -2);
+	}
 	
 	@Override
 	public JointResponse acts(JointRequest request) {
@@ -151,11 +164,14 @@ public class ActionManager implements JointManager {
 	public Page<TradeRecord> pullTrades(Terminal terminal, Integer tradeTypeId, PageRequest request) {
 		EnquiryListRequest elreq = new EnquiryListRequest();
 		elreq.setTerminalId(terminal.getSerialNum());
-		DateTime time = DateTime.now().minusMonths(3);
+		DateTime now =DateTime.now();
+		elreq.setEndTime(now.toString(DateTimeFormat.forPattern("yyyyMMddHHmmss")));
+		DateTime time = now.minusMonths(3);
 		elreq.setBeginTime(time.toString(DateTimeFormat.forPattern("yyyyMMddHHmmss")));
 		elreq.setPlatformId(terminal.getReserver1());
 		elreq.setCurPage(request.getPage());
 		elreq.setPageCount(request.getPageSize());
+		elreq.setMerchantId(terminal.getMerchantNum());
 		EnquiryListRequest.EnquiryListResponse elresp = (EnquiryListRequest.EnquiryListResponse)acts(elreq);
 		if(!elresp.isSuccess()){
 			return null;
@@ -168,7 +184,8 @@ public class ActionManager implements JointManager {
 			tr.setAmount(info.getTransAmt());
 			tr.setTradeNumber(info.getTransId());
 			tr.setSysOrderId(info.getMerchantOrderId());
-			tr.setTypes(Byte.valueOf(info.getTransType()));
+			tr.setTypes(mapping.get(info.getTransType()).byteValue());
+			tr.setTradeTypeId(mapping.get(info.getTransType()));
 			records.add(tr);
 		}
 		return new Page<TradeRecord>(request, records, elresp.getTotalCount());

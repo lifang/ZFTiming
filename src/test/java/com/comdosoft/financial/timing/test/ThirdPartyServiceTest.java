@@ -45,5 +45,10 @@ public class ThirdPartyServiceTest {
 //		Terminal terminal = terminalService.findById(125);
 //		thirdPartyService.modifyPwd(3, "123454", terminal);
 	}
+	
+	@Test
+	public void tradesTest() throws Exception {
+		thirdPartyService.pullTrades(259, 1, 1, 20);
+	}
 
 }

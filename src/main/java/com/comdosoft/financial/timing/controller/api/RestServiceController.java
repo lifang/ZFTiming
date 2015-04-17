@@ -85,7 +85,7 @@ public class RestServiceController {
 	public Response queryOrders(Integer terminalId,
 			Integer tradeTypeId,Integer page,Integer pageSize){
 		if(terminalId==null||tradeTypeId==null){
-			return Response.getError("参数[terminalId,payChannelId]都不可为空！");
+			return Response.getError("参数[terminalId,tradeTypeId]都不可为空！");
 		}
 		Page<TradeRecord> records = null;
 		try {
