@@ -324,7 +324,20 @@ public class ActionManager implements JointManager{
 		if(!result.isSuccess()){
 			throw new JointException("第三方调用失败,原因为["+result.getMsg()+"]");
 		}
-		terminal.setPassword("000000");
+		String msg = result.getRespMsg();
+		String newPwd = null;
+		if(msg.contains("身份证")){
+			String cardId = oa.getCardId();
+			newPwd = cardId.substring(cardId.length()-6);
+		}else{
+			char c = msg.charAt(msg.length()-1);
+			StringBuilder builder = new StringBuilder();
+			for(int i=0;i<6;++i){
+				builder.append(c);
+			}
+			newPwd = builder.toString();
+		}
+		terminal.setPassword(newPwd);
 		terminalService.updateTerminal(terminal);
 	}
 
