@@ -2,6 +2,7 @@ package com.comdosoft.financial.timing.service;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -9,7 +10,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import javax.xml.bind.JAXB;
 
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -60,6 +65,8 @@ public class TradeService {
 	@Value("${file.trade.record.path}")
 	private String tradeRecordFilePath;
 	
+	private static final Pattern CONTENT_PATTEN = Pattern.compile("^Array\\s*\\(\\s*\\[<\\?xml_version\\].*\\?>\\s*(<request(.|\\s)*request>)\\s*\\)\\s*$");
+	
 	@Cacheable("allTradeTypeMap")
 	public Map<Integer, DictionaryTradeType> allTradeTypes(){
 		List<DictionaryTradeType> typeList = dictionaryTradeTypeMapper.selectAll();
@@ -93,7 +100,8 @@ public class TradeService {
 	}
 	
 	@Transactional("transactionManager-trades")
-	public void receiveRecord(ZhangFuRecord record) {
+	public void receiveRecord(String body) throws ServiceException {
+		ZhangFuRecord record = parseContent2Bean(body);
 		TradeRecord tradeRecord = new TradeRecord();
 		tradeRecord.setTerminalNumber(record.getKeyDeviceSerialNo());
 		tradeRecord.setTradeNumber(record.getOrderId());
@@ -128,6 +136,9 @@ public class TradeService {
 		tradeRecord.setProfitPrice(rebateMoneyFloat.intValue());
 		//终端
 		Terminal terminal = terminalService.findBySerial(tradeRecord.getTerminalNumber());
+		if(terminal == null){
+			throw new ServiceException("未查询到终端");
+		}
 		tradeRecord.setAgentId(terminal.getAgentId());
 		tradeRecord.setPayChannelId(terminal.getPayChannelId());
 		tradeRecord.setCustomerId(terminal.getCustomerId());
@@ -232,5 +243,19 @@ public class TradeService {
 		tcr.setCreatedAt(new Date());
 		tcr.setUpdatedAt(new Date());
 		tradeConsumeRecordMapper.insert(tcr);
+	}
+	
+	private ZhangFuRecord parseContent2Bean(String content) throws ServiceException {
+		Matcher matcher = CONTENT_PATTEN.matcher(content);
+		if(!matcher.find()){
+			throw new ServiceException("接收到的数据格式不正确.");
+		}
+		String xml = matcher.group(1);
+		xml = xml.replaceAll("\\\\\"", "\"")
+				.replaceAll("<result>", "</result>")
+				.replaceFirst("</result>", "<result>");
+		StringReader reader = new StringReader(xml);
+		ZhangFuRecord record = JAXB.unmarshal(reader, ZhangFuRecord.class);
+		return record;
 	}
 }
