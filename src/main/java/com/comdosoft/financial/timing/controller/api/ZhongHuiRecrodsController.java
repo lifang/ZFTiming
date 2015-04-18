@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.comdosoft.financial.timing.domain.Response;
-import com.comdosoft.financial.timing.domain.ZhangFuRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
+import com.comdosoft.financial.timing.domain.zhangfu.OperateRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
+import com.comdosoft.financial.timing.service.OperateRecordService;
+import com.comdosoft.financial.timing.service.ServiceException;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.TradeService;
 
@@ -29,6 +31,8 @@ public class ZhongHuiRecrodsController {
 	private TradeService tradeService;
 	@Autowired
 	private TerminalService terminalService;
+	@Autowired
+	private OperateRecordService operateRecordService;
 	
 	//导入交易类型流水
 	@RequestMapping(value="/orders/import",method=RequestMethod.POST)
@@ -42,6 +46,7 @@ public class ZhongHuiRecrodsController {
 				tradeService.importTradeRecords(file);
 				return "-1";
 			} catch (Exception e) {
+				operateRecordService.saveOperateRecord(OperateRecord.TYPE_OTHER, "导入交易类型流水错误，"+e.getMessage());
 				LOG.error("import trade record error...",e);
 			}
 		}
@@ -50,8 +55,13 @@ public class ZhongHuiRecrodsController {
 
 	//记录非交易类型流水
 	@RequestMapping(value="/orders/submit",method=RequestMethod.POST)
-	public void submitOrder(@RequestBody ZhangFuRecord record){
-		tradeService.receiveRecord(record);
+	public Response submitOrder(@RequestBody String body){
+		try {
+			tradeService.receiveRecord(body);
+		} catch (ServiceException e) {
+			return Response.getError(e.getMessage());
+		}
+		return Response.getSuccess(null);
 	}
 	
 	//更新终端其他交易类型接口

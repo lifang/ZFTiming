@@ -18,6 +18,7 @@ import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
@@ -78,9 +79,9 @@ public class ActionManager implements JointManager{
 	 * @see com.comdosoft.financial.timing.joint.JointManager#syncStatus(java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String syncStatus(String account, String passwd,
-			Terminal terminal,TerminalService terminalService) {
-		LoginAction login = new LoginAction(account, passwd, null, appVersion, product);
+	public String syncStatus(Terminal terminal,TerminalService terminalService) {
+		LoginAction login = new LoginAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion, product);
 		LoginAction.LoginResult result = (LoginAction.LoginResult)acts(login);
 		if(result == null) {
 			return null;
@@ -106,13 +107,9 @@ public class ActionManager implements JointManager{
 			oa.setStatus(OpeningApplie.STATUS_CHECK_FAIL);
 			terminal.setStatus(Terminal.STATUS_NO_OPEN);
 		}
-		
 		String serialType = result.getSerialType();
-		if(serialType!=null){
-			String[] types = serialType.split("+");
-			terminal.setBaseRate(Integer.parseInt(types[0]));
-			terminal.setTopCharge(Integer.parseInt(types[1]));
-		}
+		//设置终端费率
+		checkTerminalRate(terminal,serialType);
 		terminalService.updateTerminal(terminal);
 		terminalService.updateOpeningApply(oa);
 		return status;
@@ -187,6 +184,10 @@ public class ActionManager implements JointManager{
 			if(ar.isSuccess()) {
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_NO_REGISTED);
 				terminalService.updateOpeningApply(oa);
+				String serialType = ar.getSerialType();
+				//设置终端费率
+				checkTerminalRate(terminal,serialType);
+				terminalService.updateTerminal(terminal);
 			}else {
 				terminalService.recordSubmitFail(oa,"刷卡器激活",ar.getRespCode(),ar.getRespMsg());
 				return;
@@ -229,8 +230,8 @@ public class ActionManager implements JointManager{
 				null, appVersion,
 				oa.getMerchant().getLegalPersonName(),
 				oa.getMerchant().getLegalPersonCardId(),
-				terminalService.path2File(oa.getMerchant().getCardIdFrontPhotoPath()),
-				terminalService.path2File(oa.getMerchant().getCardIdBackPhotoPath()));
+				picMap.get("personal"),
+				picMap.get("personalBack"));
 		Result raar = (Result)acts(raa);
 		LOG.info("apply [{}] real name auth result... code:{},msg:{}",
 				oa.getId(),raar.getRespCode(),raar.getRespMsg());
@@ -291,5 +292,98 @@ public class ActionManager implements JointManager{
 		
 		RequireLoginAction.clearLoginInfo(terminal.getAccount());
 	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#modifyPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService, java.lang.String)
+	 */
+	@Override
+	public void modifyPwd(Terminal terminal, TerminalService terminalService,
+			String newPwd) throws JointException {
+		PwdChangeAction pca = new PwdChangeAction(terminal.getAccount(), terminal.getPassword(),
+				null, getAppVersion(), newPwd);
+		Result pcar = (Result)acts(pca);
+		if(!pcar.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+pcar.getMsg()+"]");
+		}
+		terminal.setPassword(newPwd);
+		terminalService.updateTerminal(terminal);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetPwd(Terminal terminal, TerminalService terminalService) throws JointException {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		if(oa == null) {
+			throw new JointException("未查询到终端的opening apply.");
+		}
+		PwdResetAction pra = new PwdResetAction(oa.getAccountBankNum(), terminal.getSerialNum(),
+				oa.getPhone(), product, appVersion, false);
+		PwdResetAction.ResetPwdResult result = (PwdResetAction.ResetPwdResult)acts(pra);
+		if(!result.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+result.getMsg()+"]");
+		}
+		String msg = result.getRespMsg();
+		String newPwd = null;
+		if(msg.contains("身份证")){
+			String cardId = oa.getCardId();
+			newPwd = cardId.substring(cardId.length()-6);
+		}else{
+			char c = msg.charAt(msg.length()-1);
+			StringBuilder builder = new StringBuilder();
+			for(int i=0;i<6;++i){
+				builder.append(c);
+			}
+			newPwd = builder.toString();
+		}
+		terminal.setPassword(newPwd);
+		terminalService.updateTerminal(terminal);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetDevice(Terminal terminal, TerminalService terminalService)
+			throws JointException {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		if(oa == null) {
+			throw new JointException("未查询到终端的opening apply.");
+		}
+		DeviceResetAction dra = new DeviceResetAction(terminal.getAccount(), terminal.getPassword(),
+				null, appVersion, oa.getCardId(), terminal.getSerialNum());
+		DeviceResetAction.DeviceResetResult drr = (DeviceResetAction.DeviceResetResult)acts(dra);
+		if(!drr.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+drr.getMsg()+"]");
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#replaceDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void replaceDevice(Terminal terminal, String newSerialNum, TerminalService terminalService)
+			throws JointException {
+		String model = (getAppVersion().split("\\."))[1];
+		DeviceReplaceAction dra = new DeviceReplaceAction(terminal.getAccount(), terminal.getPassword(),
+				null, getAppVersion(), newSerialNum, model);
+		DeviceReplaceAction.ReplaceDeviceResult rdr = (DeviceReplaceAction.ReplaceDeviceResult)acts(dra);
+		if(!rdr.isSuccess()){
+			throw new JointException("第三方调用失败,原因为["+rdr.getMsg()+"]");
+		}
+		//创建新终端
+		terminalService.createNewTerminal(terminal, newSerialNum);
+	}
 	
+	//设置终端费率
+	private void checkTerminalRate(Terminal terminal,String serialType){
+		if(serialType!=null && serialType.contains("-")){
+			String[] types = serialType.split("-");
+			terminal.setBaseRate((int)(Float.parseFloat(types[0])*100));
+			terminal.setTopCharge(Integer.parseInt(types[1]));
+		}else {
+			terminal.setBaseRate((int)(Float.parseFloat(serialType)*100));
+		}
+	}
 }

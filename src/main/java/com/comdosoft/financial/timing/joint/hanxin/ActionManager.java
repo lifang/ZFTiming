@@ -1,6 +1,7 @@
 package com.comdosoft.financial.timing.joint.hanxin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -13,10 +14,12 @@ import org.springframework.util.StringUtils;
 
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryOpenPrivateInfo;
+import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalOpeningInfo;
 import com.comdosoft.financial.timing.domain.zhangfu.TerminalTradeTypeInfo;
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
@@ -25,6 +28,7 @@ import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.HttpUtils;
 import com.comdosoft.financial.timing.utils.page.Page;
 import com.comdosoft.financial.timing.utils.page.PageRequest;
+import com.google.common.collect.HashBiMap;
 
 public class ActionManager implements JointManager {
 	
@@ -33,6 +37,20 @@ public class ActionManager implements JointManager {
 	private HttpClientContext context = HttpClientContext.create();
 	private String url;
 	private String rsaKey;
+	
+	private static final String[] PUBLIC = {"idCard","regNo","occNo","taxNo","card"};//对公
+	private static final String[] PRIVATE = {"idCard","person","card"};//对私
+	
+	private static final HashBiMap<String,Integer> mapping = HashBiMap.create();
+	
+	static {
+		mapping.put("100000", DictionaryTradeType.ID_TRADE);
+		mapping.put("100004", DictionaryTradeType.ID_PHONE_RECHARGE);
+		mapping.put("100002", DictionaryTradeType.ID_REPAY);
+		mapping.put("100003", DictionaryTradeType.ID_TRANSFER);
+		mapping.put("100001", -1);
+		mapping.put("200000", -2);
+	}
 	
 	@Override
 	public JointResponse acts(JointRequest request) {
@@ -71,11 +89,10 @@ public class ActionManager implements JointManager {
 	}
 
 	@Override
-	public String syncStatus(String account, String passwd,
-			Terminal terminal, TerminalService terminalService) {
+	public String syncStatus(Terminal terminal,TerminalService terminalService){
 		LoginRequest request = new LoginRequest();
-		request.setAccountName(account);
-		request.setAccountPwd(passwd);
+		request.setAccountName(terminal.getAccount());
+		request.setAccountPwd(terminal.getPassword());
 		request.setTerminalId(terminal.getSerialNum());
 		LoginRequest.LoginResponse response = (LoginRequest.LoginResponse)acts(request);
 		if(response==null) {
@@ -147,11 +164,14 @@ public class ActionManager implements JointManager {
 	public Page<TradeRecord> pullTrades(Terminal terminal, Integer tradeTypeId, PageRequest request) {
 		EnquiryListRequest elreq = new EnquiryListRequest();
 		elreq.setTerminalId(terminal.getSerialNum());
-		DateTime time = DateTime.now().minusMonths(3);
+		DateTime now =DateTime.now();
+		elreq.setEndTime(now.toString(DateTimeFormat.forPattern("yyyyMMddHHmmss")));
+		DateTime time = now.minusMonths(3);
 		elreq.setBeginTime(time.toString(DateTimeFormat.forPattern("yyyyMMddHHmmss")));
 		elreq.setPlatformId(terminal.getReserver1());
 		elreq.setCurPage(request.getPage());
 		elreq.setPageCount(request.getPageSize());
+		elreq.setMerchantId(terminal.getMerchantNum());
 		EnquiryListRequest.EnquiryListResponse elresp = (EnquiryListRequest.EnquiryListResponse)acts(elreq);
 		if(!elresp.isSuccess()){
 			return null;
@@ -164,7 +184,8 @@ public class ActionManager implements JointManager {
 			tr.setAmount(info.getTransAmt());
 			tr.setTradeNumber(info.getTransId());
 			tr.setSysOrderId(info.getMerchantOrderId());
-			tr.setTypes(Byte.valueOf(info.getTransType()));
+			tr.setTypes(mapping.get(info.getTransType()).byteValue());
+			tr.setTradeTypeId(mapping.get(info.getTransType()));
 			records.add(tr);
 		}
 		return new Page<TradeRecord>(request, records, elresp.getTotalCount());
@@ -180,10 +201,9 @@ public class ActionManager implements JointManager {
 		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
 		LOG.info("opening apply [{}] status:{},activate status:{}",oa.getId(),oa.getStatus(),oa.getActivateStatus());
 		if(oa.getStatus() != OpeningApplie.STATUS_WAITING_CHECKE
-				|| oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
+				&& oa.getStatus()!=OpeningApplie.STATUS_CHECK_FAIL){
 			return;
 		}
-		String merchantId = null;
 		if(oa.getActivateStatus() != OpeningApplie.ACTIVATE_STATUS_REGISTED) {
 			//账户申请
 			AccountRegistRequest arreq = new AccountRegistRequest();
@@ -201,10 +221,11 @@ public class ActionManager implements JointManager {
 			arreq.setSettleAgency(oa.getAccountBankCode());
 			arreq.setAccountPwd("123456");
 			LOG.info("apply [{}] start regist...",oa.getId());
-			AccountRegistRequest.AccountRegistResponse arrsp = (AccountRegistRequest.AccountRegistResponse)acts(arreq);
+			ResponseBean arrsp = (ResponseBean)acts(arreq);
 			LOG.info("apply [{}] regist response code:{},desc:{}",oa.getId(),arrsp.getRespCode(),arrsp.getRespDesc());
 			if(arrsp.isSuccess()){
-				merchantId = arrsp.getMerchantId();
+				terminal.setMerchantNum(((AccountRegistRequest.AccountRegistResponse) arrsp).getMerchantId());
+				terminalService.updateTerminal(terminal);
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
 				terminalService.updateOpeningApply(oa);
 			}else{
@@ -212,18 +233,31 @@ public class ActionManager implements JointManager {
 				return;
 			}
 		}
+		String[] image4Upload = {};
+		if(oa.getTypes() == OpeningApplie.TYPE_PUBLIC){
+			image4Upload = PUBLIC;
+		}else if(oa.getTypes() == OpeningApplie.TYPE_PRIVATE){
+			image4Upload = PRIVATE;
+		}
 		//图片上传
 		List<TerminalOpeningInfo> terminalOpeningInfos = oa.getTerminalOpeningInfos();
 		Map<Integer,DictionaryOpenPrivateInfo> infos = terminalService.allOpenPrivateInfos();
 		for(TerminalOpeningInfo info : terminalOpeningInfos){
-			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE){
+			String mark = infos.get(info.getTargetId()).getQueryMark();
+			if(info.getTypes() == DictionaryOpenPrivateInfo.TYPE_IMAGE
+					&& Arrays.binarySearch(image4Upload, mark)>=0){
 				LOG.info("apply [{}] start image upload... type:{},value:{}",oa.getId(),
-						infos.get(info.getTargetId()).getQueryMark(),info.getValue());
+						mark,info.getValue());
 				PicUploadRequest pureq = new PicUploadRequest();
-				pureq.setMerchantId(merchantId);
+				pureq.setMerchantId(terminal.getMerchantNum());
 				pureq.setPic(terminalService.path2File((info.getValue())));
-				pureq.setPicType(infos.get(info.getTargetId()).getQueryMark());
-				PicUploadRequest.PicUploadResponse puresp = (PicUploadRequest.PicUploadResponse)acts(pureq);
+				pureq.setPicType(mark);
+				pureq.setTerminalId(terminal.getSerialNum());
+				if(pureq.getMerchantId()==null){
+					terminalService.recordSubmitFail(oa,"图片上传","-1","商户号不能为null");
+					return ;
+				}
+				ResponseBean puresp = (ResponseBean)acts(pureq);
 				LOG.info("apply [{}] image upload response code:{},desc:{}",oa.getId(),puresp.getRespCode(),puresp.getRespDesc());
 				if(!puresp.isSuccess()){
 					terminalService.recordSubmitFail(oa,"图片上传",puresp.getRespCode(),puresp.getRespDesc());
@@ -233,5 +267,55 @@ public class ActionManager implements JointManager {
 		}
 		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
 		terminalService.updateOpeningApply(oa);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#modifyPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService, java.lang.String)
+	 */
+	@Override
+	public void modifyPwd(Terminal terminal, TerminalService terminalService,
+			String newPwd) throws JointException {
+		OpeningApplie oa = terminalService.findOpeningAppylByTerminalId(terminal.getId());
+		FindPwdRequest fpr = new FindPwdRequest();
+		fpr.setMerchantId(terminal.getMerchantNum());
+		fpr.setTerminalId(terminal.getSerialNum());
+		fpr.setPhoneNum(terminal.getAccount());
+		fpr.setPwd(newPwd);
+		fpr.setSettleAccountName(oa.getAccountBankName());
+		fpr.setSetttleAccountNo(oa.getAccountBankNum());
+		fpr.setPhoneNum(oa.getPhone());
+		FindPwdRequest.FindPwdResponse fpresp = (FindPwdRequest.FindPwdResponse)acts(fpr);
+		if(!fpresp.isSuccess()){
+			throw new JointException("第三方调用失败,code:["+fpresp.getRespCode()+"]"
+					+ ",desc:["+fpresp.getRespDesc()+"]");
+		}
+		terminal.setPassword(newPwd);
+		terminalService.updateTerminal(terminal);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetPwd(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetPwd(Terminal terminal, TerminalService terminalService) throws JointException {
+		throw new JointException("翰鑫不支持此接口.");
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#resetDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void resetDevice(Terminal terminal, TerminalService terminalService)
+			throws JointException {
+		throw new JointException("翰鑫不支持此接口.");
+	}
+
+	/* (non-Javadoc)
+	 * @see com.comdosoft.financial.timing.joint.JointManager#replaceDevice(com.comdosoft.financial.timing.domain.zhangfu.Terminal, com.comdosoft.financial.timing.service.TerminalService)
+	 */
+	@Override
+	public void replaceDevice(Terminal terminal, String newSerialNum, TerminalService terminalService)
+			throws JointException {
+		throw new JointException("翰鑫不支持此接口.");
 	}
 }

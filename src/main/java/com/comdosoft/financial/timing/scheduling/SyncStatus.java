@@ -12,8 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.comdosoft.financial.timing.domain.zhangfu.OpeningApplie;
-import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
-import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
 
 /**
@@ -30,19 +28,20 @@ public class SyncStatus {
 	
 	@Autowired
 	private ThirdPartyService thirdPartyService;
-	@Autowired
-	private TerminalService terminalService;
 	
-	@Scheduled(fixedDelay=6000)
+	@Scheduled(fixedDelay=8*60*60*1000)
 	public void syncOpeningApplyStatus(){
 		LOG.debug("start sync.");
 		List<OpeningApplie> openApplies = null;
 		do{
 			openApplies = thirdPartyService.openingAppliesPage(OpeningApplie.STATUS_CHECKING);
 			for(OpeningApplie apply : openApplies) {
-				Terminal terminal = terminalService.findById(apply.getTerminalId());
-				thirdPartyService.syncStatus(terminal.getPayChannelId(),
-						terminal.getAccount(), terminal.getPassword(), terminal);
+				try {
+					thirdPartyService.syncStatus(apply.getTerminalId());
+				} catch (Exception e) {
+					LOG.error("",e);
+					thirdPartyService.syncFail(apply);
+				}
 			}
 		}while(!openApplies.isEmpty());
 	}

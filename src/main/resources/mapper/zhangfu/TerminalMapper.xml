@@ -120,7 +120,8 @@
   <resultMap extends="BaseResultMap" id="TerminalLazyResultMap" type="com.comdosoft.financial.timing.domain.zhangfu.Terminal">
     <association column="billing_cycles_id" fetchType="lazy" 
 	    javaType="com.comdosoft.financial.timing.domain.zhangfu.DictionaryBillingCycle" 
-	    property="billingCycle" select="com.comdosoft.financial.timing.timing.zhangfu.DictionaryBillingCycleMapper.selectByPrimaryKey" />
+	    property="billingCycle" select="com.comdosoft.financial.timing.mapper.zhangfu.DictionaryBillingCycleMapper.selectByPrimaryKey" />
+    <association column="customer_id" fetchType="lazy" javaType="com.comdosoft.financial.timing.domain.zhangfu.Customer" property="customer" select="com.comdosoft.financial.timing.mapper.zhangfu.CustomerMapper.selectByPrimaryKey" />
   </resultMap>
   
   <select id="selectBySerial" parameterType="java.lang.String" resultMap="TerminalLazyResultMap">

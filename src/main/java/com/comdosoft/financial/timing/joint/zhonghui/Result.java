@@ -4,15 +4,6 @@ import com.comdosoft.financial.timing.joint.JointResponse;
 
 public class Result implements JointResponse {
 	
-	public static final Result SUCCESS;
-	
-	static {
-		SUCCESS = new Result();
-		SUCCESS.isSuccess = true;
-		SUCCESS.respCode = "0";
-		SUCCESS.respMsg = "已成功，无需再次调用";
-	}
-	
 	private String respTime;
 	private String respCode;
 	private String respMsg;
@@ -72,5 +63,20 @@ public class Result implements JointResponse {
 	public void setResult(int result) {
 		isSuccess = result==RESULT_SUCCESS;
 	}
+	
+	public static Result success(String msg){
+		return result(true,msg,"0");
+	}
 
+	public static Result fail(String msg){
+		return result(false,msg,"-1");
+	}
+	
+	private static Result result(boolean isSuccess,String msg,String code) {
+		Result result = new Result();
+		result.isSuccess = isSuccess;
+		result.respCode = code;
+		result.respMsg = msg;
+		return result;
+	}
 }

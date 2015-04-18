@@ -10,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.service.ThirdPartyService;
 
 /**
@@ -25,11 +26,29 @@ public class ThirdPartyServiceTest {
 	
 	@Autowired
 	private ThirdPartyService thirdPartyService;
+	@Autowired
+	private TerminalService terminalService;
 	
 	@Test
 	public void testSubmitOpeningApply() throws Exception{
-		thirdPartyService.submitOpeningApply(125, 3);
-		Thread.sleep(10000000000l);
+//		thirdPartyService.submitOpeningApply(247);
+//		Thread.sleep(10000000000l);
+	}
+	
+	@Test
+	public void testResetPwd() throws Exception{
+//		thirdPartyService.resetPwd(125);
+	}
+	
+	@Test
+	public void testModifyPwd() throws Exception {
+//		Terminal terminal = terminalService.findById(125);
+//		thirdPartyService.modifyPwd(3, "123454", terminal);
+	}
+	
+	@Test
+	public void tradesTest() throws Exception {
+		thirdPartyService.pullTrades(259, 1, 1, 20);
 	}
 
 }

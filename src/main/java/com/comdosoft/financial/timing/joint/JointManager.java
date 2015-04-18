@@ -15,7 +15,7 @@ public interface JointManager {
 	 * 同步状态
 	 * @return
 	 */
-	String syncStatus(String account,String passwd,Terminal terminal,TerminalService terminalService);
+	String syncStatus(Terminal terminal,TerminalService terminalService);
 	
 	/**
 	 * 结算银行列表
@@ -39,6 +39,38 @@ public interface JointManager {
 	 * @param terminalService
 	 */
 	void submitOpeningApply(Terminal terminal,TerminalService terminalService);
+	
+	/**
+	 * 重置密码
+	 * @param terminal
+	 * @param terminalService
+	 */
+	void resetPwd(Terminal terminal,TerminalService terminalService) throws JointException;
+	
+	/**
+	 * 修改密码
+	 * @param terminal
+	 * @param terminalService
+	 * @param newPwd
+	 * @throws JointException
+	 */
+	void modifyPwd(Terminal terminal,TerminalService terminalService,
+			String newPwd) throws JointException;
+	
+	/**
+	 * 刷卡器替换
+	 * @param terminal
+	 * @param terminalService
+	 * @throws JointException
+	 */
+	void replaceDevice(Terminal terminal,String newSerialNum,TerminalService terminalService) throws JointException;
+	
+	/**
+	 * 刷卡器重置
+	 * @param terminal
+	 * @param terminalService
+	 */
+	void resetDevice(Terminal terminal,TerminalService terminalService) throws JointException;
 	
 	class Bank{
 		private String no;

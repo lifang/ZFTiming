@@ -7,6 +7,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.zhonghui.LoginAction.LoginResult;
 import com.google.common.collect.Maps;
 
@@ -33,38 +34,42 @@ public abstract class RequireLoginAction extends Action {
 	}
 
 	@Override
-	protected Map<String, String> headers() {
+	protected Map<String, String> headers() throws JointException {
 		checkLogin();
 		Map<String,String> headers = Maps.newHashMap();
 		headers.put("WSHSNO", loggedInfo.get(phoneNum).getSession());
 		return headers;
 	}
 	
-	private LoginResult checkLogin(){
+	private LoginResult checkLogin() throws JointException{
 		LoginResult result = loggedInfo.get(phoneNum);
 		if(result == null) {
 			try {
 				LoginAction la = new LoginAction(phoneNum, password,position,
 						appVersion,manager.getProduct());
 				LoginResult lr = (LoginResult)la.process(manager);
+				if(lr.isSuccess()) {
+					throw new JointException(lr.getMsg());
+				}
 				loggedInfo.put(phoneNum, lr);
 				result = lr;
 			} catch (IOException e) {
 				LOG.error("login error",e);
+				throw new JointException(e.getMessage());
 			}
 		}
 		return result;
 	}
 
 	@Override
-	protected boolean checkStatus() {
+	protected boolean checkStatus() throws JointException {
 		LoginResult lr = checkLogin();
 		int index = checkIndex();
 		if(index==-1){
 			return false;
 		}
 		char c = lr.getStatus().charAt(index);
-		return c!=1&&c!=2;
+		return c!='1'&&c!='2';
 	}
 	
 	/**
