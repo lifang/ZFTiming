@@ -266,6 +266,7 @@ public class ActionManager implements JointManager {
 			}
 		}
 		oa.setSubmitStatus(OpeningApplie.SUBMIT_STATUS_SUCCESS);
+		oa.setStatus(OpeningApplie.STATUS_CHECKING);
 		terminalService.updateOpeningApply(oa);
 	}
 
