@@ -379,12 +379,15 @@ public class ActionManager implements JointManager{
 	
 	//设置终端费率
 	private void checkTerminalRate(Terminal terminal,String serialType){
-		if(serialType!=null && serialType.contains("-")){
+		if(serialType == null) {
+			return;
+		}
+		if(serialType.contains("-")){
 			String[] types = serialType.split("-");
-			terminal.setBaseRate((int)(Float.parseFloat(types[0])*100));
+			terminal.setBaseRate((int)(Float.parseFloat(types[0])*1000));
 			terminal.setTopCharge(Integer.parseInt(types[1]));
 		}else {
-			terminal.setBaseRate((int)(Float.parseFloat(serialType)*100));
+			terminal.setBaseRate((int)(Float.parseFloat(serialType)*1000));
 		}
 	}
 }
