@@ -384,10 +384,10 @@ public class ActionManager implements JointManager{
 		}
 		if(serialType.contains("-")){
 			String[] types = serialType.split("-");
-			terminal.setBaseRate((int)(Float.parseFloat(types[0])*1000));
+			terminal.setBaseRate((int)(Float.parseFloat(types[0])*100));
 			terminal.setTopCharge(Integer.parseInt(types[1]));
 		}else {
-			terminal.setBaseRate((int)(Float.parseFloat(serialType)*1000));
+			terminal.setBaseRate((int)(Float.parseFloat(serialType)*100));
 		}
 	}
 }
