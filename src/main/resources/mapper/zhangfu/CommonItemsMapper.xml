@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.comdosoft.financial.timing.mapper.zhangfu.CommonItemsMapper">
+  <select id="getCommonItems" parameterType="java.lang.String" resultType="com.comdosoft.financial.timing.domain.trades.TransactionStatusRecord">
+    select t.agent_id as agent_id,t.pay_channel_id as pay_channel_id,t.customer_id as customer_id,c.city_id as city_id 
+    from terminals t,customers c 
+    where t.serial_num = #{eqno} and t.customer_id = c.id
+  </select>
+  
+  <update id="update" parameterType="com.comdosoft.financial.timing.domain.zhangfu.Terminal">
+  	update terminals set account = #{account},merchant_num = #{merchantNum},opened_at = #{openedAt},reserver1 = #{reserver1}
+  	where serial_num = #{serialNum}
+  </update>
+  
+  <update id="updateStatus1">
+  	update terminals set status = #{0}
+  	where serial_num = #{1}
+  </update>
+  
+  <update id="updateStatus2">
+  	update terminals set status = #{0},pay_channel_id = null,merchant_id = null,customer_id = null,order_id = null,
+  	base_rate = null,billing_cycles_id = null,top_charge = null
+  	where serial_num = #{1}
+  </update>
+  
+  <update id="updateTerminal">
+  	update terminals set status = #{0} where serial_num = #{1}
+  </update>
+  
+  <update id="updateTerminalTradeTypeInfo">
+  	update terminal_trade_type_infos set status = #{0} where terminal_id = (select id from terminals where serial_num = #{1})
+  </update>
+  
+  <select id="findBySerial" parameterType="java.lang.String" resultType="com.comdosoft.financial.timing.domain.zhangfu.Terminal">
+  	select id from terminals where serial_num = #{serial}
+  </select>
+</mapper>
