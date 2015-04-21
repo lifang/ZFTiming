@@ -26,8 +26,12 @@ public class TradeType implements CalculateType {
 			return;
 		}
 		DictionaryBillingCycle billingCycle = terminal.getBillingCycle();
-		Integer basePoundage = terminal.getBaseRate()*record.getAmount()/10000;
-		Integer servicePoundage = billingCycle.getServiceRate()*record.getAmount()/10000;
+		Long baseRate = new Long(terminal.getBaseRate());
+		Long res = baseRate*record.getAmount()/10000;
+		Integer basePoundage = res.intValue();
+		Long serviceRate = new Long(billingCycle.getServiceRate());
+		Long res2 = serviceRate*record.getAmount()/10000;
+		Integer servicePoundage = res2.intValue();
 		Integer poundage = basePoundage+servicePoundage;
 		if(terminal.getTopCharge()!=null){
 			poundage = poundage<terminal.getTopCharge()?poundage:terminal.getTopCharge();
