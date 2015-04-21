@@ -39,7 +39,7 @@ public class TradeType implements CalculateType {
 		SupportTradeType supportTradeType = cp.supportTradeType(
 				record.getPayChannelId(), record.getTradeTypeId());
 			//将profitPrice设置为 基础分润+浮动分润
-		Integer profitPrice = basePoundage*2*supportTradeType.getBaseProfit()/10000
+		Integer profitPrice = basePoundage*2*supportTradeType.getBaseProfit()/100000
 				+servicePoundage*supportTradeType.getServiceProfit()/10000;
 		cp.setCalculateSuccess(record, profitPrice);
 		cp.setTopAgentProfit(record, profitPrice);
