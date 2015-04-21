@@ -20,6 +20,12 @@
 				p:baseUrl="${joint.zhonghui.url}"
 				p:product="${joint.zhonghui.product}" p:appVersion="zf.zf3.1.3.1111"/>
 		</entry>
+		<entry key="4">
+			<bean class="com.comdosoft.financial.timing.joint.qiandai.PosQueryActionManager"/>
+		</entry>
+		<entry key="5">
+			<bean class="com.comdosoft.financial.timing.joint.qiandai.TransRecordQueryActionManager"/>
+		</entry>
 	</util:map>
 	
 </beans>

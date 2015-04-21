@@ -27,7 +27,7 @@ public class TradeType implements CalculateType {
 		}
 		DictionaryBillingCycle billingCycle = terminal.getBillingCycle();
 		Integer basePoundage = terminal.getBaseRate()*record.getAmount()/10000;
-		Integer servicePoundage = billingCycle.getServiceRate()*record.getAmount()/1000;
+		Integer servicePoundage = billingCycle.getServiceRate()*record.getAmount()/10000;
 		Integer poundage = basePoundage+servicePoundage;
 		if(terminal.getTopCharge()!=null){
 			poundage = poundage<terminal.getTopCharge()?poundage:terminal.getTopCharge();
@@ -40,7 +40,7 @@ public class TradeType implements CalculateType {
 				record.getPayChannelId(), record.getTradeTypeId());
 			//将profitPrice设置为 基础分润+浮动分润
 		Integer profitPrice = basePoundage*2*supportTradeType.getBaseProfit()/10000
-				+servicePoundage*supportTradeType.getServiceProfit()/1000;
+				+servicePoundage*supportTradeType.getServiceProfit()/10000;
 		cp.setCalculateSuccess(record, profitPrice);
 		cp.setTopAgentProfit(record, profitPrice);
 	}

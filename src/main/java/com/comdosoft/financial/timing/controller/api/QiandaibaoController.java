@@ -245,15 +245,20 @@ public class QiandaibaoController {
 		PosQuery pos = new PosQuery();
 		pos = (PosQuery)StringUtils.parseJSONStringToObject(result, pos);
 		StringBuffer sb = new StringBuffer();
-		sb.append("code=" + pos.getCode());
+		String code = pos.getCode();
+		if(!("102".equals(code)||"103".equals(code))){
+			return "查询失败";
+		}
+		sb.append("code=" + code);
 		sb.append("eqno=" + pos.getEqno());
 		sb.append(MD5key);
 		String md5_str = StringUtils.encryption(sb.toString(), "MD5");
 		Log.info("接受到的参数..." + sb.toString());
 		
 		if(!pos.getSign().equalsIgnoreCase(md5_str)){
-			return "md5 match error";
+			return "验签错误";
 		}
+		
 		qiandaiService.updateTerminal(pos.getCode(),pos.getEqno());
 		return "ok";
 	}

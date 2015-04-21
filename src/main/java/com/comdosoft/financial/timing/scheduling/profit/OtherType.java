@@ -24,7 +24,7 @@ public class OtherType implements CalculateType {
 			cp.setCalculateFail(record);
 			return;
 		}
-		Integer poundage = record.getAmount()*supportTradeType.getTerminalRate()/1000;
+		Integer poundage = record.getAmount()*supportTradeType.getTerminalRate()/10000;
 		if(poundage<supportTradeType.getFloorCharge()){
 			poundage = supportTradeType.getFloorCharge();
 		}else if(poundage>supportTradeType.getTopCharge()){
@@ -34,7 +34,7 @@ public class OtherType implements CalculateType {
 			cp.setRecordTerminalProfitFail(record);
 			cp.setCalculateFail(record);
 		}
-		Integer profitPrice = poundage - supportTradeType.getBaseProfit()*record.getAmount()/1000;
+		Integer profitPrice = poundage - supportTradeType.getBaseProfit()*record.getAmount()/10000;
 		if(profitPrice<supportTradeType.getFloorProfit()){
 			profitPrice = supportTradeType.getFloorProfit();
 		}
