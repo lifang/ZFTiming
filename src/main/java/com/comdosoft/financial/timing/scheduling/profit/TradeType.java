@@ -21,7 +21,7 @@ public class TradeType implements CalculateType {
 		
 	}
 	
-	public void c1(CalculateProfit cp,TradeRecord record,TradeService tradeService) {
+	public void calculate(CalculateProfit cp,TradeRecord record,TradeService tradeService) {
 		if(record.getProfitPrice()!=null){
 			cp.setTopAgentProfit(record, record.getProfitPrice());
 			return;
