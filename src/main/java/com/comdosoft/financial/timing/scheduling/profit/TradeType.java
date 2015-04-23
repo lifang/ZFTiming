@@ -43,9 +43,15 @@ public class TradeType implements CalculateType {
 		if(terminal.getTopCharge()!=null){
 			poundage = poundage<terminal.getTopCharge()?poundage:terminal.getTopCharge();
 		}
-		if(poundage!=record.getPoundage()){
-			cp.setRecordTerminalProfitFail(record);
-			cp.setCalculateFail(record);
+		Integer dbPoundage = record.getPoundage();
+		if(dbPoundage!=null){
+			if(poundage!=dbPoundage){
+				cp.setRecordTerminalProfitFail(record);
+				cp.setCalculateFail(record);
+				return;
+			}
+		}else{
+			record.setPoundage(poundage);
 		}
 		SupportTradeType supportTradeType = cp.supportTradeType(
 				record.getPayChannelId(), record.getTradeTypeId());
@@ -55,6 +61,7 @@ public class TradeType implements CalculateType {
 				+servicePoundage*serviceProfit/10000;
 		cp.setCalculateSuccess(record, profitPrice);
 		cp.setTopAgentProfit(record, profitPrice);
+		
 	}
 
 
