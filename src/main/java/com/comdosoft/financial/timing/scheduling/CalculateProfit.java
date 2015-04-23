@@ -70,6 +70,10 @@ public class CalculateProfit {
 		DictionaryTradeType tradeType = tradeService.allTradeTypes().get(record.getTradeTypeId());
 		for(CalculateType type : calculateTypes){
 			if(type.support(tradeType.getTradeType())){
+				if(tradeType.getTradeType()==DictionaryTradeType.TYPE_TRADE){
+					TradeType obj = (TradeType)type;
+					obj.c1(this,record,tradeService);
+				}
 				type.calculate(this,record);
 				break;
 			}

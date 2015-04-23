@@ -39,6 +39,7 @@ import com.comdosoft.financial.timing.mapper.trades.TradeConsumeRecordMapper;
 import com.comdosoft.financial.timing.mapper.trades.TradeRechargeRecordMapper;
 import com.comdosoft.financial.timing.mapper.trades.TradeRecordMapper;
 import com.comdosoft.financial.timing.mapper.trades.TradeTransferRepaymentRecordMapper;
+import com.comdosoft.financial.timing.mapper.zhangfu.CommonItemsMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.DictionaryTradeTypeMapper;
 import com.comdosoft.financial.timing.mapper.zhangfu.SupportTradeTypeMapper;
 import com.comdosoft.financial.timing.utils.page.PageRequest;
@@ -60,6 +61,8 @@ public class TradeService {
 	private TradeRechargeRecordMapper tradeRechargeRecordMapper;
 	@Autowired
 	private TradeTransferRepaymentRecordMapper tradeTransferRepaymentRecordMapper;
+	@Autowired
+	private CommonItemsMapper commonItemsMapper;
 	@Autowired
 	private ProfitMapper profitMapper;
 	@Value("${file.trade.record.path}")
@@ -257,5 +260,9 @@ public class TradeService {
 		StringReader reader = new StringReader(xml);
 		ZhangFuRecord record = JAXB.unmarshal(reader, ZhangFuRecord.class);
 		return record;
+	}
+	
+	public Map<String,Integer> getRateAndProfit(String terminalNum){
+		return commonItemsMapper.getRateAndProfit(terminalNum);
 	}
 }

@@ -34,4 +34,11 @@
   <select id="findBySerial" parameterType="java.lang.String" resultType="com.comdosoft.financial.timing.domain.zhangfu.Terminal">
   	select id from terminals where serial_num = #{serial}
   </select>
+  
+  <select id="getRateAndProfit" parameterType="java.lang.String"
+		resultType="map">
+		select p.rate as rate,p.profit as profit from pay_channel_billing_cycles p,terminals t 
+		where p.billing_cycles_id = t.billing_cycles_id and p.pay_channel_id = t.pay_channel_id 
+		and t.serial_num = #{terminalNum}
+  </select>
 </mapper>

@@ -1,5 +1,7 @@
 package com.comdosoft.financial.timing.mapper.zhangfu;
 
+import java.util.Map;
+
 import com.comdosoft.financial.timing.domain.trades.TransactionStatusRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
 
@@ -18,4 +20,6 @@ public interface CommonItemsMapper {
 	public void updateTerminalTradeTypeInfo(int status,String eqno);
 
 	public Terminal findBySerial(String serial);
+	
+	Map<String,Integer> getRateAndProfit(String terminalNum);
 }
