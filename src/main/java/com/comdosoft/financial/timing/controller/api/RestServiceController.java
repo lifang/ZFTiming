@@ -120,6 +120,8 @@ public class RestServiceController {
 			}
 		} catch (ServiceException e) {
 			return Response.getError(e.getMessage());
+		} catch (Exception e) {
+			return Response.getError("无效终端");
 		}
 		return Response.getError("同步失败");
 	}
