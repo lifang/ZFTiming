@@ -95,7 +95,7 @@ public class ActionManager implements JointManager {
 		request.setAccountPwd(terminal.getPassword());
 		request.setTerminalId(terminal.getSerialNum());
 		LoginRequest.LoginResponse response = (LoginRequest.LoginResponse)acts(request);
-		if(response==null) {
+		if(response==null || !response.isSuccess()) {
 			return null;
 		}
 		String accountStatus = response.getAccountStatus();

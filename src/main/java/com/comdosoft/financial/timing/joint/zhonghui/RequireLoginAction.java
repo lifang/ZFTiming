@@ -48,7 +48,7 @@ public abstract class RequireLoginAction extends Action {
 				LoginAction la = new LoginAction(phoneNum, password,position,
 						appVersion,manager.getProduct());
 				LoginResult lr = (LoginResult)la.process(manager);
-				if(lr.isSuccess()) {
+				if(!lr.isSuccess()) {
 					throw new JointException(lr.getMsg());
 				}
 				loggedInfo.put(phoneNum, lr);
