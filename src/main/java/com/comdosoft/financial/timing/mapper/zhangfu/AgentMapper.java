@@ -33,4 +33,6 @@ public interface AgentMapper {
 	int updateByPrimaryKey(Agent record);
 
 	Agent selectByCode(String code);
+	
+	List<Integer> getAllAgentsByTopAgent(String topAgentCode);
 }

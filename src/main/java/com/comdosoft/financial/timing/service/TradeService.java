@@ -6,7 +6,9 @@ import java.io.StringReader;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -265,4 +267,17 @@ public class TradeService {
 	public Map<String,Integer> getRateAndProfit(String terminalNum){
 		return commonItemsMapper.getRateAndProfit(terminalNum);
 	}
+	
+	public Integer getAmounts(List<Integer> agentList){
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		c.add(Calendar.YEAR, -1);
+		String lastYear = String.valueOf(c.get(Calendar.YEAR));
+		Map<Object,Object> map = new HashMap<Object, Object>();
+		map.put("list", agentList);
+		map.put("startDay", lastYear + "-01-01 00:00:00");
+		map.put("endDay", lastYear + "-12-31 23:59:59");
+		return tradeRecordMapper.getAllAgentsAmount(map);
+	}
+
 }

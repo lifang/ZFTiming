@@ -125,8 +125,13 @@ public class CalculateProfit {
 	 */
 	public void setTopAgentProfit(TradeRecord record,Integer profitGet){
 		Agent topAgent = agentService.selectTopLevelAgent(record.getAgentId());
+		List<Integer> agentList = agentService.getAllAgentsByTopAgent(topAgent.getCode());
+		Integer amounts = tradeService.getAmounts(agentList);
+		if(amounts == null){
+			amounts = 0;
+		}
 		AgentProfitSetting agentProfitSetting = agentService.selectBestProfitSet(topAgent.getId(),
-				record.getPayChannelId(), record.getTradeTypeId(), record.getAmount());
+				record.getPayChannelId(), record.getTradeTypeId(), amounts);
 		Integer percent = null;
 		if(agentProfitSetting != null){
 			percent = agentProfitSetting.getPercent();

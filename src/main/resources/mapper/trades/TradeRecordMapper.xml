@@ -149,5 +149,9 @@
 		order by traded_at desc
 		limit #{request.offset}, #{request.pageSize}
 	</select>
-
+	<select id="getAllAgentsAmount" parameterType="map" resultType="java.lang.Integer">
+		SELECT SUM(t.amount) FROM trade_records t WHERE t.agent_id IN
+		<foreach item="item" collection="list" open="(" separator="," close=")">#{item}</foreach>
+		AND t.traded_at&gt;=#{startDay} AND traded_at&lt;=#{endDay}
+	</select>
 </mapper>

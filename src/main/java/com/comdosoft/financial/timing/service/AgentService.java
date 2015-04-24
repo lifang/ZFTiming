@@ -1,5 +1,7 @@
 package com.comdosoft.financial.timing.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,5 +44,9 @@ public class AgentService {
 			Integer payChannelId,Integer tradeTypeId,Integer amount){
 		return agentProfitSettingMapper.selectBestProfitSetting(
 				agentId, payChannelId, tradeTypeId, amount);
+	}
+	
+	public List<Integer> getAllAgentsByTopAgent(String topAgentCode){
+		return agentMapper.getAllAgentsByTopAgent(topAgentCode);
 	}
 }

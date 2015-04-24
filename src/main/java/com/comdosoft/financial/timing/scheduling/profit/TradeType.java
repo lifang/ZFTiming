@@ -45,7 +45,7 @@ public class TradeType implements CalculateType {
 		}
 		Integer dbPoundage = record.getPoundage();
 		if(dbPoundage!=null){
-			if(poundage!=dbPoundage){
+			if(!poundage.equals(dbPoundage)){
 				cp.setRecordTerminalProfitFail(record);
 				cp.setCalculateFail(record);
 				return;
