@@ -24,7 +24,7 @@ public class OrderList {
 	
 	private String cardtype;
 	
-	private String bankname;
+	private String bankName;
 
 	public String getTime() {
 		return time;
@@ -114,12 +114,14 @@ public class OrderList {
 		this.cardtype = cardtype;
 	}
 
-	public String getBankname() {
-		return bankname;
+	public String getBankName() {
+		return bankName;
 	}
 
-	public void setBankname(String bankname) {
-		this.bankname = bankname;
+	public void setBankName(String bankName) {
+		this.bankName = bankName;
 	}
+
+	
 	
 }

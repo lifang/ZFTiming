@@ -8,7 +8,7 @@ public class TransactionRecordQuery {
 	
 	private String eqno;
 	
-	private String agentno;
+	//private String agentno;
 	
 	private String querytype;
 	
@@ -18,7 +18,7 @@ public class TransactionRecordQuery {
 	
 	private String remark;
 	
-	private String orderlist;
+	private OrderList[] orderlist;
 	
 	private String sign;
 
@@ -46,13 +46,13 @@ public class TransactionRecordQuery {
 		this.eqno = eqno;
 	}
 
-	public String getAgentno() {
-		return agentno;
-	}
-
-	public void setAgentno(String agentno) {
-		this.agentno = agentno;
-	}
+//	public String getAgentno() {
+//		return agentno;
+//	}
+//
+//	public void setAgentno(String agentno) {
+//		this.agentno = agentno;
+//	}
 
 	public String getQuerytype() {
 		return querytype;
@@ -86,14 +86,6 @@ public class TransactionRecordQuery {
 		this.remark = remark;
 	}
 
-	public String getOrderlist() {
-		return orderlist;
-	}
-
-	public void setOrderlist(String orderlist) {
-		this.orderlist = orderlist;
-	}
-
 	public String getSign() {
 		return sign;
 	}
@@ -101,6 +93,13 @@ public class TransactionRecordQuery {
 	public void setSign(String sign) {
 		this.sign = sign;
 	}
-	
-	
+
+	public OrderList[] getOrderlist() {
+		return orderlist;
+	}
+
+	public void setOrderlist(OrderList[] orderlist) {
+		this.orderlist = orderlist;
+	}
+
 }

@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.slf4j.Logger;
@@ -15,8 +16,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.comdosoft.financial.timing.domain.trades.OrderResult;
-import com.comdosoft.financial.timing.domain.trades.OrderResult.OrderList;
+
+import com.comdosoft.financial.timing.domain.trades.OrderList;
 import com.comdosoft.financial.timing.domain.trades.PosQuery;
 import com.comdosoft.financial.timing.domain.trades.Result;
 import com.comdosoft.financial.timing.domain.trades.ResultInfo;
@@ -240,14 +241,15 @@ public class QiandaibaoController {
 			result = HttpUtils.post(url, headers, params, fileParams, responseHandler);
 		} catch (IOException e) {
 			Log.error("error..." + e);
+			return "请求失败";
 		}
 		
 		PosQuery pos = new PosQuery();
 		pos = (PosQuery)StringUtils.parseJSONStringToObject(result, pos);
 		StringBuffer sb = new StringBuffer();
 		String code = pos.getCode();
-		if(!("102".equals(code)||"103".equals(code))){
-			return "查询失败";
+		if(!("00".equals(code)||"102".equals(code))){
+			return pos.getMsg();
 		}
 		sb.append("code=" + code);
 		sb.append("eqno=" + pos.getEqno());
@@ -283,22 +285,29 @@ public class QiandaibaoController {
 		
 		Map<String,File> fileParams = new  HashMap<String, File>();
 		ResponseHandler<String> responseHandler = new BasicResponseHandler();
-		String result = "";
+		String response = "";
 		try {
-			result = HttpUtils.post(url, headers, params, fileParams, responseHandler);
+			response = HttpUtils.post(url, headers, params, fileParams, responseHandler);
 		} catch (IOException e) {
 			Log.error("error..." + e);
 		}
-		System.out.println(result);
+//		System.out.println(response);
+//		String json = "{\"code\":\"00\",\"msg\":\"成功\",\"eqno\":\"82316280\",\"querytype\":\"2\",\"begintime\":\"2015-01-01 12:12:12\",\"endtime\":\"2015-04-01 12:12:12\",\"remark\":\"\",\"orderlist\":[{\"time\":\"2015-01-01 16:06:13.393\",\"orderid\":\"QD2015010116-082298\",\"agentno\":\"981818900330\",\"presettletime\":\"2015-01-04 00:00:00.000\",\"settletime\":\"1900-01-01 00:00:00.000\",\"money\":\"497500\",\"settlemoney\":\"493600\",\"fee\":\".3900\",\"eqno\":\"501000084391\",\"cardno\":\"622575******2783\",\"cardtype\":\"2\",\"bankName\":\"招商银行\"}],\"sign\":\"c01e4ebbc8bbbbbe2584c8efa38fe53f\"}";
+//		System.out.println(json);
 		TransactionRecordQuery query = new TransactionRecordQuery();
-		query = (TransactionRecordQuery)StringUtils.parseJSONStringToObject(result, query);
+		try {
+			query = (TransactionRecordQuery)StringUtils.parseJSONStringToObject(response, query);
+		} catch (Exception e) {
+			Log.error("json转换失败");
+			return "{\"code\":-1,\"message\":\"json转换失败\",\"result\":{\"total\":0,\"list\":[]}}";
+		}
 		String code = query.getCode();
 		if("01".equals(code) || "02".equals(code)){
 			return "{\"code\":-1,\"message\":\"交易不存在或其他错误\",\"result\":{\"total\":0,\"list\":[]}}";
 		}
 		StringBuffer sb = new StringBuffer();
 		sb.append("code=" + query.getCode());
-		sb.append("agentno=" + query.getAgentno());
+		//sb.append("agentno=" + query.getAgentno());
 		sb.append("querytype=" + query.getQuerytype());
 		sb.append("begintime=" + query.getBegintime());
 		sb.append("endtime=" + query.getEndtime());
@@ -308,20 +317,11 @@ public class QiandaibaoController {
 		if(!query.getSign().equalsIgnoreCase(md5_str)){
 			return "{\"code\":-1,\"message\":\"md5签名不匹配\",\"result\":{\"total\":0,\"list\":[]}}";
 		}
-
-		String orderlistStr =  query.getOrderlist();
-		OrderResult re = new OrderResult();
-		re = (OrderResult)StringUtils.parseJSONStringToObject(orderlistStr,re);
-		ResultInfo resultInfo = new ResultInfo();
-		String result_code = re.getCcode();
-		if("00".equals(result_code)){
-			resultInfo.setCode(1);
-			resultInfo.setMessage("success");
-		}
-		Result result1 = new Result();
-		OrderList[] orderList = re.getOrderlist();
+		OrderList[] orderList = query.getOrderlist();
 		int total = orderList.length;
-		result1.setTotal(total);
+		Result result = new Result();
+		ResultInfo resultInfo = new ResultInfo();
+		result.setTotal(total);
 		ResultList[] resultList = new ResultList[total];
 		for(int i = 0;i < total;i++){
 			ResultList resultListTemp = new ResultList();
@@ -331,14 +331,15 @@ public class QiandaibaoController {
 			resultListTemp.setPayIntoAccount(null);
 			resultListTemp.setTradedStatus("1");
 			resultListTemp.setTrade_number(orderList[i].getOrderid());
-			resultListTemp.setTradedTimeStr(orderList[i].getTime());
+			resultListTemp.setTradedTimeStr(orderList[i].getTime().substring(0, 19));
 			resultListTemp.setPayFromAccount(orderList[i].getCardno());
 			resultListTemp.setTerminalNumber(orderList[i].getEqno());
 			resultList[i] = resultListTemp;
 		}
-		result1.setList(resultList);
-		
-		resultInfo.setResult(result1);
+		result.setList(resultList);
+		resultInfo.setCode(1);
+		resultInfo.setMessage("success");
+		resultInfo.setResult(result);
 		return StringUtils.parseObjectToJSONString(resultInfo);
 		
 	}

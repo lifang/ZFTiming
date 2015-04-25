@@ -44,10 +44,10 @@ public class QiandaiService {
 
 	/*根据 POS终端号查询开通状态更新*/
 	public void updateTerminal(String code,String eqno) {
-		if("102".equals(code)){
+		if("00".equals(code)){
 			commonItemsMapper.updateTerminal(Terminal.STATUS_OPENED,eqno);
 			commonItemsMapper.updateTerminalTradeTypeInfo(TerminalTradeTypeInfo.STATUS_OPENED,eqno);
-		}else if("103".equals(code)){
+		}else if("102".equals(code)){
 			commonItemsMapper.updateTerminal(Terminal.STATUS_NO_OPEN,eqno);
 			commonItemsMapper.updateTerminalTradeTypeInfo(TerminalTradeTypeInfo.STATUS_NO_OPEN,eqno);
 		}
