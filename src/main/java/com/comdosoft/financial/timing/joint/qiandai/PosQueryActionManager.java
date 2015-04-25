@@ -19,7 +19,7 @@ import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public class PosQueryActionManager implements JointManager{
 	
-	@Value("MD5key")
+	@Value("${MD5key}")
 	private String MD5key;
 
 	@Override

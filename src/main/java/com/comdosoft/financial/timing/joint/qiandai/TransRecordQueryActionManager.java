@@ -25,7 +25,7 @@ import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public class TransRecordQueryActionManager  implements JointManager{
 
-	@Value("MD5key")
+	@Value("${MD5key}")
 	private String MD5key;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(TransRecordQueryActionManager.class);

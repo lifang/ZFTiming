@@ -35,11 +35,11 @@ import com.comdosoft.financial.timing.utils.StringUtils;
 public class QiandaibaoController {
 	
 	private static final Logger Log = LoggerFactory.getLogger(QiandaibaoController.class);
-	@Value("MD5key")
+	@Value("${MD5key}")
 	private String MD5key;
-	@Value("transaction.query.url")
+	@Value("${transaction.query.url}")
 	private String transactionQueryUrl;
-	@Value("pos.query.url")
+	@Value("${pos.query.url}")
 	private String posQueryUrl;
 	
 	@Autowired
