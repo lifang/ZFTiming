@@ -12,6 +12,7 @@ import org.apache.http.impl.client.BasicResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -34,9 +35,12 @@ import com.comdosoft.financial.timing.utils.StringUtils;
 public class QiandaibaoController {
 	
 	private static final Logger Log = LoggerFactory.getLogger(QiandaibaoController.class);
-	
-	/*钱袋分配给接口合作方 md5key 的值*/
-	private static final String MD5key = "AB14EF83C9204C268CA764AAF49D4D787C025837%$#@$&^%$@5610216-428D8A82-090E25849C03";
+	@Value("MD5key")
+	private String MD5key;
+	@Value("transaction.query.url")
+	private String transactionQueryUrl;
+	@Value("pos.query.url")
+	private String posQueryUrl;
 	
 	@Autowired
 	private QiandaiService qiandaiService;
@@ -223,7 +227,7 @@ public class QiandaibaoController {
 	@RequestMapping(value="/posQuery",method=RequestMethod.POST)
 	public String posQuery(String eqno,String now,String remark,String sign){
 		
-		String url = "https://s.qiandai.com/SearchAgentInfo/getAgentInfoByEqno";
+		String url = posQueryUrl;
 		
 		Map<String,String> headers = new  HashMap<String, String>();
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -271,7 +275,7 @@ public class QiandaibaoController {
 	 */
 	@RequestMapping(value="/transactionRecordQuery",method=RequestMethod.POST)
 	public String transactionRecordQuery(String eqno,String querytype,String begintime,String endtime,String sign){		
-		String url = "https://s.qiandai.com/SearchOrderList/showorder";
+		String url = transactionQueryUrl;
 		
 		Map<String,String> headers = new  HashMap<String, String>();
 		headers.put("Content-Type", "application/x-www-form-urlencoded");

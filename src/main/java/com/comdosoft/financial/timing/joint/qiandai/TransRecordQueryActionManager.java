@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.comdosoft.financial.timing.controller.api.QiandaibaoController;
 import com.comdosoft.financial.timing.domain.trades.ResultInfo;
@@ -24,7 +25,8 @@ import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public class TransRecordQueryActionManager  implements JointManager{
 
-	private static final String MD5key = "AB14EF83C9204C268CA764AAF49D4D787C025837%$#@$&^%$@5610216-428D8A82-090E25849C03";
+	@Value("MD5key")
+	private String MD5key;
 	
 	private static final Logger LOG = LoggerFactory.getLogger(TransRecordQueryActionManager.class);
 	

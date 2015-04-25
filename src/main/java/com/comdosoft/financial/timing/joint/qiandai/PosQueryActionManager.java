@@ -3,6 +3,8 @@ package com.comdosoft.financial.timing.joint.qiandai;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import com.comdosoft.financial.timing.controller.api.QiandaibaoController;
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.Terminal;
@@ -17,7 +19,8 @@ import com.comdosoft.financial.timing.utils.page.PageRequest;
 
 public class PosQueryActionManager implements JointManager{
 	
-	private static final String MD5key = "AB14EF83C9204C268CA764AAF49D4D787C025837%$#@$&^%$@5610216-428D8A82-090E25849C03";
+	@Value("MD5key")
+	private String MD5key;
 
 	@Override
 	public JointResponse acts(JointRequest request) {
