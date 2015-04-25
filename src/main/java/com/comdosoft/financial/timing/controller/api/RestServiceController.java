@@ -69,8 +69,13 @@ public class RestServiceController {
 		if(pageSize==null){
 			pageSize = 10;
 		}
-		Page<JointManager.Bank> banks = thirdPartyService.bankList(keyword,
-				pageSize, page, payChannelId, serialNum);
+		Page<JointManager.Bank> banks = null;
+		try {
+			banks =	thirdPartyService.bankList(keyword,
+					pageSize, page, payChannelId, serialNum);
+		} catch (Exception e) {
+			return Response.getError("无效终端");
+		}
 		return Response.getSuccess(banks);
 	}
 
