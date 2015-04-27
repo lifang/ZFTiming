@@ -3,11 +3,14 @@ package com.comdosoft.financial.timing.joint.qiandai;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import com.comdosoft.financial.timing.controller.api.QiandaibaoController;
 import com.comdosoft.financial.timing.domain.trades.ResultInfo;
@@ -18,18 +21,27 @@ import com.comdosoft.financial.timing.joint.JointException;
 import com.comdosoft.financial.timing.joint.JointManager;
 import com.comdosoft.financial.timing.joint.JointRequest;
 import com.comdosoft.financial.timing.joint.JointResponse;
+import com.comdosoft.financial.timing.mapper.zhangfu.CommonItemsMapper;
+import com.comdosoft.financial.timing.service.QiandaiService;
 import com.comdosoft.financial.timing.service.TerminalService;
 import com.comdosoft.financial.timing.utils.StringUtils;
 import com.comdosoft.financial.timing.utils.page.Page;
 import com.comdosoft.financial.timing.utils.page.PageRequest;
-
-public class TransRecordQueryActionManager  implements JointManager{
-
+@Component
+public class ActionManager implements JointManager{
+	
 	@Value("${MD5key}")
 	private String MD5key;
+	@Value("${transaction.query.url}")
+	private String transactionQueryUrl;
+	@Value("${pos.query.url}")
+	private String posQueryUrl;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(TransRecordQueryActionManager.class);
-	
+	private static final Logger LOG = LoggerFactory.getLogger(ActionManager.class);
+	@Autowired
+	private CommonItemsMapper commonItemsMapper;
+	@Autowired
+	private QiandaiService qiandaiService;
 	@Override
 	public JointResponse acts(JointRequest request) {
 		// TODO Auto-generated method stub
@@ -38,7 +50,28 @@ public class TransRecordQueryActionManager  implements JointManager{
 
 	@Override
 	public String syncStatus(Terminal terminal, TerminalService terminalService) {
-		return null;
+		return syncStatus(terminal,terminalService,qiandaiService,commonItemsMapper);
+	}
+	public String syncStatus(Terminal terminal, TerminalService terminalService,
+			QiandaiService qiandaiService,CommonItemsMapper commonItemsMapper) {
+		QiandaibaoController qiandaoHandler = new QiandaibaoController();
+		qiandaoHandler.setMD5key(MD5key);
+		qiandaoHandler.setPosQueryUrl(posQueryUrl);
+		qiandaoHandler.setQiandaiService(qiandaiService);
+		qiandaiService.setCommonItemsMapper(commonItemsMapper);
+		String eqno = terminal.getSerialNum();
+		String now = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+		String remark = terminal.getReserver1();
+		StringBuilder sb = new StringBuilder();
+		sb.append("eqno=" + eqno);
+		sb.append("now=" + now);
+		sb.append(MD5key);
+		String sign = StringUtils.encryption(sb.toString(), "MD5");
+		String result = qiandaoHandler.posQuery(eqno, now, remark, sign);
+		if(!"ok".equals(result)){
+			return null;	
+		}
+		return result;
 	}
 
 	@Override
@@ -47,16 +80,17 @@ public class TransRecordQueryActionManager  implements JointManager{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
+	
 	public Page<TradeRecord> pullTrades(Terminal terminal, Integer tradeTypeId,
 			PageRequest request){
 		QiandaibaoController qiandaoHandler = new QiandaibaoController();
+		qiandaoHandler.setMD5key(MD5key);
+		qiandaoHandler.setTransactionQueryUrl(transactionQueryUrl);
 		List<TradeRecord> records = new ArrayList<TradeRecord>();
 		String eqno = terminal.getSerialNum();
 		String querytype = "2";
-		String begintime = "";
-		String endtime = "";
+		String begintime = "2015-04-15 01:01:01";
+		String endtime = "2015-04-27 01:01:01";
 		StringBuilder sb = new StringBuilder();
 		sb.append("eqno=" + eqno);
 		sb.append("querytype=" + querytype);
@@ -69,16 +103,18 @@ public class TransRecordQueryActionManager  implements JointManager{
 		if(re.indexOf("\"code\":-1,")>0){		
 			return null;		
 		}
-		ResultInfo resultInfo = (ResultInfo) StringUtils.parseJSONStringToObject(re, ResultInfo.class);				
+
+		ResultInfo resultInfo = new ResultInfo();
+		resultInfo = (ResultInfo) StringUtils.parseJSONStringToObject(re, resultInfo);				
 		ResultList[] result = resultInfo.getResult().getList();
 		
 		for(ResultList res : result){
 			TradeRecord tradeRecord = new TradeRecord();
-			tradeRecord.setAmount(res.getAmount());
+			tradeRecord.setAmount((int)(res.getAmount()*100));
 			tradeRecord.setId(res.getId());
-			tradeRecord.setPoundage(res.getPoundage());
+			tradeRecord.setPoundage((int)(res.getPoundage()*100));
 			tradeRecord.setTradedStatus(Integer.valueOf(res.getTradedStatus()));
-			tradeRecord.setTradeNumber(res.getTrade_number());
+			tradeRecord.setTradeNumber(res.getTradeNumber());
 			try {
 				tradeRecord.setTradedAt(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(res.getTradedTimeStr()));
 			} catch (ParseException e) {

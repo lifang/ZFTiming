@@ -18,6 +18,14 @@ public class QiandaiService {
 	@Autowired
 	private CommonItemsMapper commonItemsMapper;
 	
+	public CommonItemsMapper getCommonItemsMapper() {
+		return commonItemsMapper;
+	}
+
+	public void setCommonItemsMapper(CommonItemsMapper commonItemsMapper) {
+		this.commonItemsMapper = commonItemsMapper;
+	}
+
 	/*根据设备编号查询agent_id，pay_channel_id，customer_id和city_id*/
 	public TransactionStatusRecord getCommonItems(String eqno){
 		return commonItemsMapper.getCommonItems(eqno);

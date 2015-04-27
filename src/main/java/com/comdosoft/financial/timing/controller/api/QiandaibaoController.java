@@ -45,6 +45,38 @@ public class QiandaibaoController {
 	@Autowired
 	private QiandaiService qiandaiService;
 	
+	public String getMD5key() {
+		return MD5key;
+	}
+
+	public void setMD5key(String mD5key) {
+		MD5key = mD5key;
+	}
+
+	public String getTransactionQueryUrl() {
+		return transactionQueryUrl;
+	}
+
+	public void setTransactionQueryUrl(String transactionQueryUrl) {
+		this.transactionQueryUrl = transactionQueryUrl;
+	}
+
+	public String getPosQueryUrl() {
+		return posQueryUrl;
+	}
+
+	public void setPosQueryUrl(String posQueryUrl) {
+		this.posQueryUrl = posQueryUrl;
+	}
+
+	public QiandaiService getQiandaiService() {
+		return qiandaiService;
+	}
+
+	public void setQiandaiService(QiandaiService qiandaiService) {
+		this.qiandaiService = qiandaiService;
+	}
+
 	/**
 	 * 消费成功通知
 	 * @param transactionStatusRecord
@@ -295,7 +327,7 @@ public class QiandaibaoController {
 		} catch (IOException e) {
 			Log.error("error..." + e);
 		}
-//		System.out.println(response);
+		System.out.println(response);
 //		String json = "{\"code\":\"00\",\"msg\":\"成功\",\"eqno\":\"82316280\",\"querytype\":\"2\",\"begintime\":\"2015-01-01 12:12:12\",\"endtime\":\"2015-04-01 12:12:12\",\"remark\":\"\",\"orderlist\":[{\"time\":\"2015-01-01 16:06:13.393\",\"orderid\":\"QD2015010116-082298\",\"agentno\":\"981818900330\",\"presettletime\":\"2015-01-04 00:00:00.000\",\"settletime\":\"1900-01-01 00:00:00.000\",\"money\":\"497500\",\"settlemoney\":\"493600\",\"fee\":\".3900\",\"eqno\":\"501000084391\",\"cardno\":\"622575******2783\",\"cardtype\":\"2\",\"bankName\":\"招商银行\"}],\"sign\":\"c01e4ebbc8bbbbbe2584c8efa38fe53f\"}";
 //		System.out.println(json);
 		TransactionRecordQuery query = new TransactionRecordQuery();
@@ -303,6 +335,9 @@ public class QiandaibaoController {
 			query = (TransactionRecordQuery)StringUtils.parseJSONStringToObject(response, query);
 		} catch (Exception e) {
 			Log.error("json转换失败");
+			return "{\"code\":-1,\"message\":\"json转换失败\",\"result\":{\"total\":0,\"list\":[]}}";
+		}
+		if(query == null){
 			return "{\"code\":-1,\"message\":\"json转换失败\",\"result\":{\"total\":0,\"list\":[]}}";
 		}
 		String code = query.getCode();
@@ -318,9 +353,9 @@ public class QiandaibaoController {
 		sb.append(MD5key);
 		String md5_str = StringUtils.encryption(sb.toString(), "MD5");
 		Log.info("接受到的参数..." + sb.toString() + ",MD5:" + md5_str);
-		if(!query.getSign().equalsIgnoreCase(md5_str)){
-			return "{\"code\":-1,\"message\":\"md5签名不匹配\",\"result\":{\"total\":0,\"list\":[]}}";
-		}
+//		if(!query.getSign().equalsIgnoreCase(md5_str)){
+//			return "{\"code\":-1,\"message\":\"md5签名不匹配\",\"result\":{\"total\":0,\"list\":[]}}";
+//		}
 		OrderList[] orderList = query.getOrderlist();
 		int total = orderList.length;
 		Result result = new Result();
@@ -329,12 +364,12 @@ public class QiandaibaoController {
 		ResultList[] resultList = new ResultList[total];
 		for(int i = 0;i < total;i++){
 			ResultList resultListTemp = new ResultList();
-			resultListTemp.setAmount(Integer.valueOf(orderList[i].getMoney()));
+			resultListTemp.setAmount(Float.valueOf(orderList[i].getMoney()));
 			resultListTemp.setId(null);
-			resultListTemp.setPoundage(Integer.valueOf(orderList[i].getFee()));
+			resultListTemp.setPoundage(Float.valueOf(orderList[i].getFee()));
 			resultListTemp.setPayIntoAccount(null);
 			resultListTemp.setTradedStatus("1");
-			resultListTemp.setTrade_number(orderList[i].getOrderid());
+			resultListTemp.setTradeNumber(orderList[i].getOrderid());
 			resultListTemp.setTradedTimeStr(orderList[i].getTime().substring(0, 19));
 			resultListTemp.setPayFromAccount(orderList[i].getCardno());
 			resultListTemp.setTerminalNumber(orderList[i].getEqno());
