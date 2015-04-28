@@ -42,7 +42,7 @@ public class TradeType implements CalculateType {
 				.divide(new BigInteger("10000")))).intValue();
 		Integer poundage = basePoundage+servicePoundage;
 		if(terminal.getTopCharge()!=null){
-			poundage = poundage<terminal.getTopCharge()?poundage:terminal.getTopCharge();
+			poundage = poundage.compareTo(terminal.getTopCharge())<0?poundage:terminal.getTopCharge();
 		}
 		Integer dbPoundage = record.getPoundage();
 		if(dbPoundage!=null){
@@ -58,7 +58,7 @@ public class TradeType implements CalculateType {
 				record.getPayChannelId(), record.getTradeTypeId());
 			//将profitPrice设置为 基础分润+浮动分润
 		Integer serviceProfit = Integer.valueOf(map.get("profit"));
-		Integer profitPrice = (new BigInteger(String.valueOf(basePoundage*2))
+		Integer profitPrice = (new BigInteger(String.valueOf(basePoundage)).multiply(new BigInteger("2"))
 				.multiply(new BigInteger(String.valueOf(supportTradeType.getBaseProfit())))
 				.divide(new BigInteger("100000"))).intValue() 
 				+ (new BigInteger(String.valueOf(servicePoundage))
