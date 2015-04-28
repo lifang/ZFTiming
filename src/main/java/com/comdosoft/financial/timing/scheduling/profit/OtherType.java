@@ -1,5 +1,7 @@
 package com.comdosoft.financial.timing.scheduling.profit;
 
+import java.math.BigInteger;
+
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
 import com.comdosoft.financial.timing.domain.zhangfu.DictionaryTradeType;
 import com.comdosoft.financial.timing.domain.zhangfu.SupportTradeType;
@@ -24,8 +26,8 @@ public class OtherType implements CalculateType {
 			cp.setCalculateFail(record);
 			return;
 		}
-		Long res1 = new Long(record.getAmount()*supportTradeType.getTerminalRate());
-		Integer poundage = res1.intValue()/10000;
+		BigInteger b1 = new BigInteger(String.valueOf(record.getAmount()*supportTradeType.getTerminalRate()));
+		Integer poundage = (b1.divide(new BigInteger("10000"))).intValue();
 		if(poundage<supportTradeType.getFloorCharge()){
 			poundage = supportTradeType.getFloorCharge();
 		}else if(poundage>supportTradeType.getTopCharge()){
@@ -35,8 +37,9 @@ public class OtherType implements CalculateType {
 			cp.setRecordTerminalProfitFail(record);
 			cp.setCalculateFail(record);
 		}
-		Long baseRate = new Long(supportTradeType.getBaseRate());
-		Long res = baseRate*record.getAmount()/10000;
+
+		BigInteger b2 = new BigInteger(String.valueOf(supportTradeType.getBaseRate()));
+		Integer res = (b2.multiply(new BigInteger(String.valueOf(record.getAmount()))).divide(new BigInteger("10000"))).intValue();
 		Integer profitPrice = poundage - res.intValue();
 		if(profitPrice<supportTradeType.getFloorProfit()){
 			profitPrice = supportTradeType.getFloorProfit();

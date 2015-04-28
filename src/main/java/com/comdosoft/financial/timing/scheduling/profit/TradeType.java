@@ -1,5 +1,6 @@
 package com.comdosoft.financial.timing.scheduling.profit;
 
+import java.math.BigInteger;
 import java.util.Map;
 
 import com.comdosoft.financial.timing.domain.trades.TradeRecord;
@@ -33,12 +34,12 @@ public class TradeType implements CalculateType {
 		}
 
 		Map<String,Integer> map = tradeService.getRateAndProfit(terminal.getSerialNum());
-		Long baseRate = new Long(terminal.getBaseRate());
-		Long res = baseRate*record.getAmount()/10000;
-		Integer basePoundage = res.intValue();
-		Long serviceRate = new Long(map.get("rate"));
-		Long res2 = serviceRate*record.getAmount()/10000;
-		Integer servicePoundage = res2.intValue();
+		Integer basePoundage = (new BigInteger(String.valueOf(terminal.getBaseRate()))
+				.multiply(new BigInteger(String.valueOf(record.getAmount())))
+				.divide(new BigInteger("10000"))).intValue();
+		Integer servicePoundage = (new BigInteger(String.valueOf(map.get("rate")))
+				.multiply(new BigInteger(String.valueOf(record.getAmount()))
+				.divide(new BigInteger("10000")))).intValue();
 		Integer poundage = basePoundage+servicePoundage;
 		if(terminal.getTopCharge()!=null){
 			poundage = poundage<terminal.getTopCharge()?poundage:terminal.getTopCharge();
@@ -57,8 +58,12 @@ public class TradeType implements CalculateType {
 				record.getPayChannelId(), record.getTradeTypeId());
 			//将profitPrice设置为 基础分润+浮动分润
 		Integer serviceProfit = Integer.valueOf(map.get("profit"));
-		Integer profitPrice = basePoundage*2*supportTradeType.getBaseProfit()/100000
-				+servicePoundage*serviceProfit/10000;
+		Integer profitPrice = (new BigInteger(String.valueOf(basePoundage*2))
+				.multiply(new BigInteger(String.valueOf(supportTradeType.getBaseProfit())))
+				.divide(new BigInteger("100000"))).intValue() 
+				+ (new BigInteger(String.valueOf(servicePoundage))
+				.multiply(new BigInteger(String.valueOf(serviceProfit)))
+				.divide(new BigInteger("10000"))).intValue();
 		cp.setCalculateSuccess(record, profitPrice);
 		cp.setTopAgentProfit(record, profitPrice);
 		
