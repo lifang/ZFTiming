@@ -21,6 +21,20 @@
 				p:product="${joint.zhonghui.product}" p:appVersion="zf.zf3.1.3.1111"/>
 		</entry>
 		<entry key="4">
+			<bean class="com.comdosoft.financial.timing.joint.hanxin.ActionManager"
+				p:url="${joint.hanxin.url}" p:rsaKey="${joint.hanxin.rsa}" />
+		</entry>
+		<entry key="5">
+			<bean class="com.comdosoft.financial.timing.joint.zhonghui.ActionManager"
+				p:baseUrl="${joint.zhonghui.url}"
+				p:product="${joint.zhonghui.product}" p:appVersion="zf.zfmini.1.3.1111"/>
+		</entry>
+		<entry key="6">
+			<bean class="com.comdosoft.financial.timing.joint.zhonghui.ActionManager"
+				p:baseUrl="${joint.zhonghui.url}"
+				p:product="${joint.zhonghui.product}" p:appVersion="zf.zf3.1.3.1111"/>
+		</entry>
+		<entry key="7">
 			<bean class="com.comdosoft.financial.timing.joint.qiandai.ActionManager"/>
 		</entry>
 	</util:map>
