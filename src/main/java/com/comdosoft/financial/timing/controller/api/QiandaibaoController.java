@@ -136,7 +136,8 @@ public class QiandaibaoController {
 		if(cityId != null){
 			tradeRecord.setCityId(Integer.valueOf(cityId));
 		}
-		
+		tradeRecord.setTradeTypeId(1);
+		tradeRecord.setTypes(new Byte("1"));
 		qiandaiService.save(tradeRecord);
 		return "ok";
 	}
