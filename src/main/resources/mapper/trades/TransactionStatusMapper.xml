@@ -4,9 +4,9 @@
   
   <insert id="insert" parameterType="com.comdosoft.financial.timing.domain.trades.TradeRecord">
     insert into trade_records (trade_number,merchant_number,traded_at,amount,poundage,terminal_number,
-    	pay_from_account,agent_id,pay_channel_id,customer_id,city_id)
+    	pay_from_account,agent_id,pay_channel_id,customer_id,city_id,trade_type_id,types,traded_status)
     values (#{tradeNumber},#{merchantNumber},#{tradedAt},#{amount},#{poundage},#{terminalNumber},
-    	#{payFromAccount},#{agentId},#{payChannelId},#{customerId},#{cityId})
+    	#{payFromAccount},#{agentId},#{payChannelId},#{customerId},#{cityId},#{tradeTypeId},#{types},#{tradedStatus})
   </insert>
 
 </mapper>

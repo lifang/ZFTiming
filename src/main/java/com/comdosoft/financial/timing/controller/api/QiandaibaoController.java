@@ -138,6 +138,7 @@ public class QiandaibaoController {
 		}
 		tradeRecord.setTradeTypeId(1);
 		tradeRecord.setTypes(new Byte("1"));
+		tradeRecord.setTradedStatus(TradeRecord.TRADE_STATUS_SUCCESS);
 		qiandaiService.save(tradeRecord);
 		return "ok";
 	}
