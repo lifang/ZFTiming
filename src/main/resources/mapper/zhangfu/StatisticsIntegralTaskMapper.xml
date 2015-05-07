@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
-	namespace="com.comdosoft.financial.user.mapper.zhangfu.StatisticsIntegralTaskMapper">
+	namespace="com.comdosoft.financial.timing.mapper.zhangfu.StatisticsIntegralTaskMapper">
 	<select id="findOrderInfo" resultType="map"> 
 		select o.id, o.customer_id
 		, o.actual_price,o.order_number from orders o where (o.`status` = '3' || o.`status` =

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper
-	namespace="com.comdosoft.financial.user.mapper.trades.record.TradeRecordStatisticsMapper">
+	namespace="com.comdosoft.financial.timing.mapper.trades.TradeRecordStatisticsMapper">
 	<select id="findTradeRecords" resultType="map">
 		select tr.id,
 		tr.amount,tr.customer_id,tr.trade_number from
