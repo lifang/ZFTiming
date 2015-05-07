@@ -83,7 +83,7 @@ public class ActionManager implements JointManager{
 		LoginAction login = new LoginAction(terminal.getAccount(), terminal.getPassword(),
 				null, appVersion, product);
 		LoginAction.LoginResult result = (LoginAction.LoginResult)acts(login);
-		if(result == null) {
+		if(result == null || !result.isSuccess()) {
 			return null;
 		}
 		String status = result.getStatus();

@@ -51,7 +51,7 @@ public class CalculateProfit {
 		calculateTypes.add(new TradeType());
 	}
 	
-	@Scheduled(cron="0 0 0 * * ?")
+	@Scheduled(cron="05 59 16 * * ?")
 	public void job(){
 		List<TradeRecord> records = tradeService.searchNonCalculatedRecord();
 		LOG.info("select {} records.",records.size());
@@ -125,8 +125,13 @@ public class CalculateProfit {
 	 */
 	public void setTopAgentProfit(TradeRecord record,Integer profitGet){
 		Agent topAgent = agentService.selectTopLevelAgent(record.getAgentId());
+		List<Integer> agentList = agentService.getAllAgentsByTopAgent(topAgent.getCode());
+		Integer amounts = tradeService.getAmounts(agentList);
+		if(amounts == null){
+			amounts = 0;
+		}
 		AgentProfitSetting agentProfitSetting = agentService.selectBestProfitSet(topAgent.getId(),
-				record.getPayChannelId(), record.getTradeTypeId(), record.getAmount());
+				record.getPayChannelId(), record.getTradeTypeId(), amounts);
 		Integer percent = null;
 		if(agentProfitSetting != null){
 			percent = agentProfitSetting.getPercent();

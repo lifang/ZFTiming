@@ -125,4 +125,8 @@
 	    from agents
 	    where code = #{code}
 	</select>
+	
+	<select id="getAllAgentsByTopAgent" parameterType="java.lang.String" resultType="java.lang.Integer">
+		SELECT a.id FROM agents a WHERE a.code LIKE CONCAT(#{topAgentCode},'%')
+	</select>
 </mapper>

@@ -18,6 +18,14 @@ public class QiandaiService {
 	@Autowired
 	private CommonItemsMapper commonItemsMapper;
 	
+	public CommonItemsMapper getCommonItemsMapper() {
+		return commonItemsMapper;
+	}
+
+	public void setCommonItemsMapper(CommonItemsMapper commonItemsMapper) {
+		this.commonItemsMapper = commonItemsMapper;
+	}
+
 	/*根据设备编号查询agent_id，pay_channel_id，customer_id和city_id*/
 	public TransactionStatusRecord getCommonItems(String eqno){
 		return commonItemsMapper.getCommonItems(eqno);
@@ -44,10 +52,10 @@ public class QiandaiService {
 
 	/*根据 POS终端号查询开通状态更新*/
 	public void updateTerminal(String code,String eqno) {
-		if("102".equals(code)){
+		if("00".equals(code)){
 			commonItemsMapper.updateTerminal(Terminal.STATUS_OPENED,eqno);
 			commonItemsMapper.updateTerminalTradeTypeInfo(TerminalTradeTypeInfo.STATUS_OPENED,eqno);
-		}else if("103".equals(code)){
+		}else if("102".equals(code)){
 			commonItemsMapper.updateTerminal(Terminal.STATUS_NO_OPEN,eqno);
 			commonItemsMapper.updateTerminalTradeTypeInfo(TerminalTradeTypeInfo.STATUS_NO_OPEN,eqno);
 		}

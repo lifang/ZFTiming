@@ -1,6 +1,7 @@
 package com.comdosoft.financial.timing.mapper.trades;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
@@ -42,5 +43,6 @@ public interface TradeRecordMapper {
 	List<TradeRecord> selectPage(@Param("request") PageRequest request,
 								 @Param("attach") Integer attach,
                                  @Param("status") Integer status);
+	Integer getAllAgentsAmount(Map<Object,Object> map);
 
 }

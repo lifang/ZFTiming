@@ -63,7 +63,11 @@ public class ThirdPartyService {
 
 	public String syncStatus(Integer terminalId) throws ServiceException{
 		Terminal terminal = checkTerminal(terminalId);
-		JointManager manager = switchManager(terminal.getPayChannelId());
+		Integer payChannelId = terminal.getPayChannelId();
+		if(payChannelId>7){
+			return null;
+		}
+		JointManager manager = switchManager(payChannelId);
 		return manager.syncStatus(terminal, terminalService);
 	}
 	

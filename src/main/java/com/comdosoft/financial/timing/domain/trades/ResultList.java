@@ -1,21 +1,21 @@
 package com.comdosoft.financial.timing.domain.trades;
 
 public class ResultList {
-	private Integer amount;
+	private Float amount;
 	private Integer id;
-	private Integer poundage;
+	private Float poundage;
 	private String payIntoAccount;
 	private String tradedStatus;
-	private String trade_number;
+	private String tradeNumber;
 	private String tradedTimeStr;
 	private String payFromAccount;
 	private String terminalNumber;
 
-	public Integer getAmount() {
+	public Float getAmount() {
 		return amount;
 	}
 
-	public void setAmount(Integer amount) {
+	public void setAmount(Float amount) {
 		this.amount = amount;
 	}
 
@@ -27,11 +27,11 @@ public class ResultList {
 		this.id = id;
 	}
 
-	public Integer getPoundage() {
+	public Float getPoundage() {
 		return poundage;
 	}
 
-	public void setPoundage(Integer poundage) {
+	public void setPoundage(Float poundage) {
 		this.poundage = poundage;
 	}
 
@@ -51,12 +51,12 @@ public class ResultList {
 		this.tradedStatus = tradedStatus;
 	}
 
-	public String getTrade_number() {
-		return trade_number;
+	public String getTradeNumber() {
+		return tradeNumber;
 	}
 
-	public void setTrade_number(String trade_number) {
-		this.trade_number = trade_number;
+	public void setTradeNumber(String tradeNumber) {
+		this.tradeNumber = tradeNumber;
 	}
 
 	public String getTradedTimeStr() {
