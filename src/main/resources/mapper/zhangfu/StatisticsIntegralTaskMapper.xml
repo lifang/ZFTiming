@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.comdosoft.financial.user.mapper.zhangfu.StatisticsIntegralTaskMapper">
+	<select id="findOrderInfo" resultType="map"> 
+		select o.id, o.customer_id
+		, o.actual_price,o.order_number from orders o where (o.`status` = '3' || o.`status` =
+		'4') and IFNULL(o.integral_status, 0) =0 and o.customer_id is not null
+	</select>
+
+	<select id="findPosValue" resultType="int">
+		select s.param_value from
+		sys_config s
+		where s.param_name = #{param}
+	</select>
+
+	<update id="updateOrdersIntegralStatus">
+		update orders o set o.integral_status =1 where
+		o.id =
+		#{id}
+	</update>
+
+	<insert id="insertCustomerIntegralRecords" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into customer_integral_records
+		(customer_id,types,quantity,target_id,target_type,created_at,updated_at,description)
+		values(#{customerId},#{types},#{quantity},#{targetId},#{targetType},#{createdAt},#{updatedAt},#{description})
+	</insert>
+
+	<update id="updateCustomerIntegral">
+		update customers c set c.integral=#{1}
+		where c.id=#{0}
+	</update>
+
+	<select id="findCustomerIntegral" resultType="int">
+		select c.integral from customers c where c.id=#{customerId}
+	</select>
+ 
+</mapper>

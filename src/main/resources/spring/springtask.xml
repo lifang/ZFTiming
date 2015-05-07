@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="statisticsIntegral"
+		class="com.comdosoft.financial.timing.controller.api.StatisticsIntegralTask"></bean>
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="orderCleanJobDetail1"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 调用的类 -->
+		<property name="targetObject" ref="statisticsIntegral" />
+		<!-- 调用类中的方法 -->
+		<property name="targetMethod" value="statisticsIntegral" />
+		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+
+	<!-- 定义触发时间 -->
+	<bean id="myJobTrigger2"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<ref bean="orderCleanJobDetail1" />
+		</property>
+		<property name="cronExpression">
+			<value>0 17 16 * * ?</value><!-- 0 0 0/2 * * ?   每两小时启动 -->
+		</property>
+	</bean>
+
+
+	<!-- 定义调用对象和调用对象的方法 -->
+	<bean id="orderCleanJobDetail2"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<!-- 调用的类 -->
+		<property name="targetObject" ref="statisticsIntegral" />
+		<!-- 调用类中的方法 -->
+		<property name="targetMethod" value="transactionFlowing" />
+		<!-- 是否允许任务并发执行。当值为false时，表示必须等到前一个线程处理完毕后才再启一个新的线程 -->
+		<property name="concurrent" value="false" />
+	</bean>
+
+
+	<!-- 定义触发时间 -->
+	<bean id="myJobTrigger1"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<ref bean="orderCleanJobDetail2" />
+		</property>
+		<property name="cronExpression">
+			<value>0 15 16 * * ?</value><!-- 0 0 0/2 * * ?   每两小时启动 -->
+		</property>
+	</bean>
+
+
+
+	<!-- 总管理类 如果将lazy-init='false'那么容器启动就会执行调度程序 -->
+	<!-- 如果lazy-init='true',则需要实例化该bean才能执行调度程序 -->
+	<bean name="startTask" lazy-init="true" autowire="no"
+		class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="myJobTrigger1" />
+				<ref bean="myJobTrigger2" />
+			</list>
+		</property>
+		<!-- <property name="autoStartup" value="true"/> -->
+	</bean>
+</beans>  
