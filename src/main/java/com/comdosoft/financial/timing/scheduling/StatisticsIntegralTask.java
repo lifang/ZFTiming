@@ -21,7 +21,7 @@ public class StatisticsIntegralTask {
 	/**
 	 * 统计购买的pos机 所获得的积分。
 	 */
-	@Scheduled(cron="0 22 17 * * ?")
+	@Scheduled(cron="0 0 0/2 * * ?")
 	public void statisticsIntegral() {
 		new Thread(new Runnable() {
 			@Override
@@ -41,7 +41,7 @@ public class StatisticsIntegralTask {
 	/**
 	 * 统计交易流水
 	 */
-	@Scheduled(cron="0 20 17 * * ?")
+	@Scheduled(cron="0 0 0/2 * * ?")
 	public void transactionFlowing() {
 		new Thread(new Runnable() {
 			@Override
