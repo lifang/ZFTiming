@@ -3,6 +3,7 @@ package com.comdosoft.financial.timing.joint.qiandai;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -89,8 +90,13 @@ public class ActionManager implements JointManager{
 		List<TradeRecord> records = new ArrayList<TradeRecord>();
 		String eqno = terminal.getSerialNum();
 		String querytype = "2";
-		String begintime = "2015-04-15 01:01:01";
-		String endtime = "2015-04-27 01:01:01";
+		Date today = new Date();
+		SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		c.add(Calendar.MONTH, -1);
+		String begintime = dateFormatter.format(c.getTime());
+		String endtime = dateFormatter.format(today);
 		StringBuilder sb = new StringBuilder();
 		sb.append("eqno=" + eqno);
 		sb.append("querytype=" + querytype);
