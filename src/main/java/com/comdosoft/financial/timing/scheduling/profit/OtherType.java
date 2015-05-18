@@ -37,6 +37,7 @@ public class OtherType implements CalculateType {
 		if(!poundage.equals(record.getPoundage())) {
 			cp.setRecordTerminalProfitFail(record);
 			cp.setCalculateFail(record);
+			return;
 		}
 
 		BigInteger b2 = new BigInteger(String.valueOf(supportTradeType.getBaseRate()));
