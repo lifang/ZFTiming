@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.comdosoft.financial.timing.mapper.zhangfu.OrderMapper">
+    <!-- 清理 -->
+	<update id="cleanOrder" >
+      UPDATE orders t
+		SET t.`status` = 6,t.updated_at= NOW()
+		WHERE
+			DATE_SUB(NOW(), INTERVAL 1 DAY) > t.created_at
+		AND t.`status` = 1  and (t.types =1 or t.types =2)
+    </update>
+    
+	<update id="update_goods_stock" >
+     UPDATE goods
+	SET quantity = quantity + #{param2},updated_at= NOW()
+	WHERE
+		id = #{param1}
+    </update>
+    <!-- 查询 要清理的订单中的商品id和库存 -->
+    <select id="findPersonGoodsQuantity" resultType="map" >
+    	SELECT
+			og.good_id,
+			sum(og.quantity) as quantity
+		FROM
+			orders t
+		right JOIN order_goods og ON og.order_id = t.id
+		WHERE
+			DATE_SUB(NOW(), INTERVAL 1 DAY) > t.created_at
+		AND t.`status` = 1  and (t.types =1 or t.types =2)
+		GROUP BY
+			og.good_id
+    </select>
+</mapper>
