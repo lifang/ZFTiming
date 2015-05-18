@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.comdosoft.financial.timing.mapper.trades.TradeRecordStatisticsMapper">
+	<select id="findTradeRecords" resultType="map">
+		select tr.id,
+		tr.amount,tr.customer_id,tr.trade_number from
+		trade_records tr where tr.traded_status =
+		1 and
+		IFNULL(tr.integral_status,0) = 0 and tr.customer_id is not null
+	</select> 
+
+	<update id="updateTradeRecords">
+		update trade_records set integral_status = 1 where id
+		= #{id}
+	</update>
+
+</mapper>

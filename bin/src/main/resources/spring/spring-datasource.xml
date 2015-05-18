@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+
+	<!-- db zhangfu -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close" p:url="${jdbc.zhangfu.url}"
+		p:username="${jdbc.zhangfu.user}" p:password="${jdbc.zhangfu.password}" p:filters="stat"
+		p:maxActive="20" p:initialSize="1" p:maxWait="60000" p:minIdle="1"
+		p:timeBetweenEvictionRunsMillis="3000" p:minEvictableIdleTimeMillis="300000"
+		p:validationQuery="SELECT 'x'" p:testWhileIdle="true" p:testOnBorrow="false"
+		p:testOnReturn="false" p:poolPreparedStatements="true"
+		p:maxPoolPreparedStatementPerConnectionSize="20" />
+
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:configLocation="classpath:mybaits.xml"
+		p:dataSource-ref="dataSource"
+		p:mapperLocations="classpath:mapper/zhangfu/*.xml" />
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+		p:sqlSessionFactoryBeanName="sqlSessionFactory"
+		p:basePackage="com.comdosoft.financial.timing.mapper.zhangfu" />
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource" />
+
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	
+	<!-- db trades -->
+	<bean id="dataSource-trades" class="com.alibaba.druid.pool.DruidDataSource"
+		init-method="init" destroy-method="close" p:url="${jdbc.trades.url}"
+		p:username="${jdbc.trades.user}" p:password="${jdbc.trades.password}" p:filters="stat"
+		p:maxActive="20" p:initialSize="1" p:maxWait="60000" p:minIdle="1"
+		p:timeBetweenEvictionRunsMillis="3000" p:minEvictableIdleTimeMillis="300000"
+		p:validationQuery="SELECT 'x'" p:testWhileIdle="true" p:testOnBorrow="false"
+		p:testOnReturn="false" p:poolPreparedStatements="true"
+		p:maxPoolPreparedStatementPerConnectionSize="20" />
+
+	<bean id="sqlSessionFactory-trades" class="org.mybatis.spring.SqlSessionFactoryBean"
+          p:configLocation="classpath:mybaits.xml"
+		p:dataSource-ref="dataSource-trades"
+		p:mapperLocations="classpath:mapper/trades/*.xml" />
+
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"
+		p:sqlSessionFactoryBeanName="sqlSessionFactory-trades"
+		p:basePackage="com.comdosoft.financial.timing.mapper.trades" />
+
+	<bean id="transactionManager-trades"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource-trades" />
+
+	<tx:annotation-driven transaction-manager="transactionManager-trades" />
+</beans>

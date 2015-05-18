@@ -23,8 +23,4 @@
 		<context:property-placeholder location="classpath:config/local.properties" />
 	</beans>
 
-	<!-- local -->
-	<beans profile="test">
-		<context:property-placeholder location="classpath:config/test.properties" />
-	</beans>
 </beans>
