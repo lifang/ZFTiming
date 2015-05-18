@@ -51,7 +51,7 @@ public class CalculateProfit {
 		calculateTypes.add(new TradeType());
 	}
 	
-	@Scheduled(cron="0 0 0 * * ?")
+	@Scheduled(cron="0 0 0/1 * * ?")
 	public void job(){
 		List<TradeRecord> records = tradeService.searchNonCalculatedRecord();
 		LOG.info("select {} records.",records.size());
