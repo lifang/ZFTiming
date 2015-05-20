@@ -33,8 +33,9 @@ public class SyncStatus {
 	public void syncOpeningApplyStatus(){
 		LOG.debug("start sync.");
 		List<OpeningApplie> openApplies = null;
+		int row = 0;
 		do{
-			openApplies = thirdPartyService.openingAppliesPage(OpeningApplie.STATUS_CHECKING);
+			openApplies = thirdPartyService.openingAppliesPage(OpeningApplie.STATUS_CHECKING,row);
 			for(OpeningApplie apply : openApplies) {
 				try {
 					thirdPartyService.syncStatus(apply.getTerminalId());
@@ -43,6 +44,7 @@ public class SyncStatus {
 					thirdPartyService.syncFail(apply);
 				}
 			}
+			row++;
 		}while(!openApplies.isEmpty());
 	}
 }
