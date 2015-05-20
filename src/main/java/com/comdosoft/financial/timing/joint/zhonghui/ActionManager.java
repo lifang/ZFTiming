@@ -3,6 +3,7 @@ package com.comdosoft.financial.timing.joint.zhonghui;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,7 @@ public class ActionManager implements JointManager{
 		String serialType = result.getSerialType();
 		//设置终端费率
 		checkTerminalRate(terminal,serialType);
+		terminal.setUpdatedAt(new Date());
 		terminalService.updateTerminal(terminal);
 		terminalService.updateOpeningApply(oa);
 		return status;
@@ -183,10 +185,12 @@ public class ActionManager implements JointManager{
 			LOG.info("apply [{}] activate result... code:{},msg:{}",oa.getId(),ar.getRespCode(),ar.getRespMsg());
 			if(ar.isSuccess()) {
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_NO_REGISTED);
+				oa.setUpdatedAt(new Date());
 				terminalService.updateOpeningApply(oa);
 				String serialType = ar.getSerialType();
 				//设置终端费率
 				checkTerminalRate(terminal,serialType);
+				terminal.setUpdatedAt(new Date());
 				terminalService.updateTerminal(terminal);
 			}else {
 				terminalService.recordSubmitFail(oa,"刷卡器激活",ar.getRespCode(),ar.getRespMsg());
@@ -215,8 +219,10 @@ public class ActionManager implements JointManager{
 			if(r.isSuccess()){
 				terminal.setAccount(oa.getPhone());
 				terminal.setPassword("123456");
+				terminal.setUpdatedAt(new Date());
 				terminalService.updateTerminal(terminal);
 				oa.setActivateStatus(OpeningApplie.ACTIVATE_STATUS_REGISTED);
+				oa.setUpdatedAt(new Date());
 				terminalService.updateOpeningApply(oa);
 			}else {
 				terminalService.recordSubmitFail(oa,"用户注册",r.getRespCode(),r.getRespMsg());
