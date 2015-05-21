@@ -149,7 +149,7 @@
 	    from opening_applies
 	    where status = #{param1}
 	    order by created_at
-	    limit #{param2.offset}, #{param2.pageSize}
+	    limit #{param2.page}, #{param2.pageSize}
     </select>
 
 </mapper>

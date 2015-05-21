@@ -76,8 +76,8 @@ public class ThirdPartyService {
 		openingApplieMapper.updateByPrimaryKey(oa);
 	}
 	
-	public List<OpeningApplie> openingAppliesPage(byte status){
-		PageRequest request = new PageRequest(1, 10);
+	public List<OpeningApplie> openingAppliesPage(byte status,int row){
+		PageRequest request = new PageRequest(row, 10);
 		return openingApplieMapper.selectWithStatus(status, request);
 	}
 	

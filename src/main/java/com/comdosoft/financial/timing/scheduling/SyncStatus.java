@@ -19,30 +19,32 @@ import com.comdosoft.financial.timing.service.ThirdPartyService;
  * 
  * @author gookin.wu
  *
- * Email: gookin.wu@gmail.com
- * Date: 2015年3月31日 下午4:43:58
+ *         Email: gookin.wu@gmail.com Date: 2015年3月31日 下午4:43:58
  */
 @Component
 public class SyncStatus {
 	private static final Logger LOG = LoggerFactory.getLogger(SyncStatus.class);
-	
+
 	@Autowired
 	private ThirdPartyService thirdPartyService;
-	
-	@Scheduled(fixedDelay=8*60*60*1000)
-	public void syncOpeningApplyStatus(){
+
+	@Scheduled(fixedDelay = 8 * 60 * 60 * 1000)
+	public void syncOpeningApplyStatus() {
 		LOG.debug("start sync.");
 		List<OpeningApplie> openApplies = null;
-		do{
-			openApplies = thirdPartyService.openingAppliesPage(OpeningApplie.STATUS_CHECKING);
-			for(OpeningApplie apply : openApplies) {
+		int row = 0;
+		do {
+			openApplies = thirdPartyService.openingAppliesPage(OpeningApplie.STATUS_CHECKING, row);
+			for (OpeningApplie apply : openApplies) {
 				try {
 					thirdPartyService.syncStatus(apply.getTerminalId());
 				} catch (Exception e) {
-					LOG.error("",e);
+					LOG.error("", e);
 					thirdPartyService.syncFail(apply);
 				}
 			}
-		}while(!openApplies.isEmpty());
+			row++;
+			row = row * 10;
+		} while (!openApplies.isEmpty());
 	}
 }

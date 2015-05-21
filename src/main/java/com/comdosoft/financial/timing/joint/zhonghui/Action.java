@@ -69,6 +69,7 @@ public abstract class Action implements JointRequest,ResponseHandler<Result>{
 	public Result handleResponse(HttpResponse response)
 			throws IOException {
         final StatusLine statusLine = response.getStatusLine();
+        LOG.info(""+statusLine.getStatusCode());
         final HttpEntity entity = response.getEntity();
         if (statusLine.getStatusCode() >= 300) {
             EntityUtils.consume(entity);
