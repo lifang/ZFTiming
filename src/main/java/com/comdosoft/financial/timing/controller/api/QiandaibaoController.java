@@ -101,6 +101,9 @@ public class QiandaibaoController {
 		}
 		
 		TransactionStatusRecord temp = qiandaiService.getCommonItems(transactionStatusRecord.getEqno());
+		if(temp == null){
+			return "error";
+		}
 		TradeRecord tradeRecord = new TradeRecord();
 		tradeRecord.setTradeNumber(transactionStatusRecord.getOrderid());
 		tradeRecord.setMerchantNumber(transactionStatusRecord.getAgentno());

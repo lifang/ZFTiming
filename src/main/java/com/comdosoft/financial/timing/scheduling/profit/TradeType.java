@@ -34,6 +34,9 @@ public class TradeType implements CalculateType {
 		}
 
 		Map<String,Integer> map = tradeService.getRateAndProfit(terminal.getSerialNum());
+		if(terminal.getBaseRate()==null){
+			return;
+		}
 		Integer basePoundage = (new BigInteger(String.valueOf(terminal.getBaseRate()))
 				.multiply(new BigInteger(String.valueOf(record.getAmount())))
 				.divide(new BigInteger("10000"))).intValue();
